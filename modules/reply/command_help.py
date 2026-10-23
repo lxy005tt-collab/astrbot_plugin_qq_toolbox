@@ -87,7 +87,7 @@ PARAM_NAMES = {
     "alias": "名称", "key": "变量名", "value": "值", "category": "分类名",
     "category_name": "分类名", "description": "说明", "category_description": "分类说明",
     "emotion": "分类名", "emotion_name": "分类名", "name": "名称", "mode": "模式",
-    "message_count": "消息条数", "idx": "编号", "idx2": "子编号",
+    "message_count": "消息条数", "idx": "编号", "idx2": "子编号", "post_id": "说说编号",
 }
 PLUGIN_NAMES = {
     "builtin_commands": "基础指令",
@@ -96,7 +96,7 @@ PLUGIN_NAMES = {
 }
 INTRO = (
     "使用时：在【】内的指令名前加半角斜杠，参数与指令之间留空格。\n"
-    "<内容>需要填写，[内容]可选；【管理员】仅 AstrBot 管理员可用。\n"
+    "参数标为“必填”的需要填写，标为“可选”的可省略；【管理员】仅 AstrBot 管理员可用。\n"
     "以下均为说明文字，未直接列出可执行的斜杠指令。"
 )
 
@@ -178,7 +178,9 @@ def command_line(item, compact=False):
                 elif rule.event_message_type == EventMessageType.GROUP_MESSAGE:
                     labels.append("【仅群聊】")
     command = safe_text(item.get("effective_command") or item.get("original_command"))
-    invocation = " ".join(part for part in (command, safe_text(usage)) if part)
+    usage = (safe_text(usage).replace("<", "（必填：").replace(">", "）")
+             .replace("[", "（可选：").replace("]", "）"))
+    invocation = " ".join(part for part in (command, usage) if part)
     aliases = item.get("aliases", [])
     alias_note = f"（别名：{'、'.join(safe_text(alias) for alias in aliases)}）" if aliases and not compact else ""
     return f"• 【{invocation}】{''.join(labels)} — {safe_text(description)[:120]}{alias_note}"
