@@ -1,0 +1,82 @@
+{
+  "enabled": {
+    "type": "bool",
+    "description": "启用输出禁词替换",
+    "default": true
+  },
+  "word_replacements": {
+    "type": "list",
+    "items": {
+      "type": "string"
+    },
+    "description": "词语替换（原词 = 替换词）",
+    "default": [],
+    "hint": "每项一条，例如：折腾 = 搞。回复里的“别折腾了”就会变成“别搞了”。点“添加更多”增加下一条，不用填写其他替换框。等号左右可留空格；右边留空表示删掉这个词。"
+  },
+  "block_asterisk": {
+    "type": "bool",
+    "description": "含 * 的回复整条屏蔽",
+    "default": false,
+    "hint": "默认关闭。输出出现半角 * 就整条不发送，不替换成提示语。加粗、乘号和含星号颜文字也会命中；需要这些输出时保持关闭。覆盖 QQ 群聊、私聊及直接发送工具，正常回复在分段及转图片/语音前检查。"
+  },
+  "block_markdown": {
+    "type": "bool",
+    "description": "正文含 Markdown 符号时整条屏蔽",
+    "default": false,
+    "hint": "默认关闭。按字符取消整条回复，不是真正的思考识别器；需要 Markdown、代码、数学符号或颜文字时保持关闭。只检查 QQ 正文，不检查接口隐藏思考；开启后关闭流式先发，命中也停止该模型步骤后续工具执行。"
+  },
+  "markdown_symbols": {
+    "type": "list",
+    "items": {
+      "type": "string"
+    },
+    "description": "整条屏蔽的 Markdown 字符",
+    "default": [
+      "*",
+      "-",
+      "+",
+      "#",
+      "_",
+      "`",
+      ">",
+      "~",
+      "|",
+      "[",
+      "]"
+    ],
+    "hint": "每项一个半角字符，可自行增减。普通减号、加号、日期中的连字符、链接方括号等也会命中；不检查图片地址、文件名或不可读的思考签名。"
+  },
+  "words": {
+    "type": "list",
+    "items": {
+      "type": "string"
+    },
+    "description": "旧版普通禁词",
+    "invisible": true,
+    "default": [],
+    "hint": "每项一个词或短语，直接按字面匹配，不需要写正则。标点按普通字符处理，较长词优先替换。空词表不会过滤任何内容。"
+  },
+  "patterns": {
+    "type": "list",
+    "items": {
+      "type": "string"
+    },
+    "description": "正则规则（可选）",
+    "invisible": true,
+    "default": [],
+    "hint": "每项一条 Python 正则表达式，整个命中内容替换为下方文本。不确定正则写法时使用普通禁词即可。规则按顺序执行；无效正则会阻止插件加载并给出错误提示。"
+  },
+  "replacement": {
+    "type": "string",
+    "description": "替换文本",
+    "invisible": true,
+    "default": "***",
+    "hint": "普通禁词和正则命中后统一替换成此文本，按字面写入，不展开正则捕获组。"
+  },
+  "ignore_case": {
+    "type": "bool",
+    "description": "忽略英文大小写",
+    "default": true,
+    "hint": "开启后，英文大小写变体同样命中；中文匹配不受影响。"
+  }
+}

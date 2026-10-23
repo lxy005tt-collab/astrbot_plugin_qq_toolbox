@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QQ 工具箱</title>
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./toolbox.css" />
+  </head>
+  <body>
+    <div id="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">Q</div>
+          <div class="brand-text">
+            <strong>QQ 工具箱</strong>
+            <small>TOOLBOX</small>
+          </div>
+        </div>
+        <nav id="nav" class="nav">
+          <span class="nav-caption">工具箱</span>
+          <button data-view="toolbox" class="nav-item active" aria-current="page">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="1.6"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.6"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.6"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.6"/></svg>
+            <span>总览</span>
+          </button>
+          <button data-view="settings" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M18.5 7H21M4 17h4M12.5 17H21"/><circle cx="15.5" cy="7" r="2.3"/><circle cx="9.5" cy="17" r="2.3"/></svg>
+            <span>功能设置</span>
+          </button>
+          <button data-view="space" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M7 9h6M7 13h10M7 17h4"/></svg>
+            <span>空间与日记</span>
+          </button>
+          <button data-view="quota" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="8.8" cy="9.8" r="1.5"/><path d="m5 17 4.6-4.6L13 16l3-2.4 3.4 3.4"/></svg>
+            <span>绘图额度</span>
+          </button>
+          <span class="nav-caption">观察台</span>
+          <button data-view="overview" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h3.6L9.3 6l4.1 12 2.6-6H21"/></svg>
+            <span>聊天总览</span>
+          </button>
+          <button data-view="groups" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9.2" cy="8.8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.7-5s5.1 1.8 5.7 5"/><path d="M15.6 6.2a3.2 3.2 0 0 1 0 5.2M17.4 14.4c1.9.7 3.1 2.4 3.5 4.6"/></svg>
+            <span>群聊</span>
+          </button>
+          <button data-view="privates" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6a8.3 8.3 0 0 1-12.1 7.4L3.6 20.4l1.3-4.5A8.3 8.3 0 1 1 20.5 11.6Z"/></svg>
+            <span>私聊</span>
+          </button>
+          <button data-view="requests" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="m7.5 10 2.5 2.5-2.5 2.5M12.8 15h3.7"/></svg>
+            <span>模型请求</span>
+          </button>
+          <button data-view="costs" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h12v17l-3-1.7-3 1.7-3-1.7-3 1.7V3.5Z"/><path d="M9 8h6M9 12h6"/></svg>
+            <span>费用</span>
+          </button>
+        </nav>
+        <div class="sidebar-foot">
+          <div class="health-line">
+            <span id="health-dot" class="dot" aria-hidden="true"></span>
+            <span id="health-text">连接中</span>
+          </div>
+          <div id="build-note" class="build-note">—</div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <h1 id="view-title" class="view-title">工具箱</h1>
+          <div class="topbar-actions">
+            <button id="open-settings-btn" class="btn primary" type="button">功能设置</button>
+            <div id="range-tabs" class="seg" role="tablist" hidden>
+              <button data-range="today">今日</button>
+              <button data-range="24h" class="active">24 小时</button>
+              <button data-range="7d">7 天</button>
+            </div>
+            <button id="refresh-btn" class="btn refresh-btn" title="立即刷新">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 6.3"/><path d="M20 4.5V11h-6.5"/></svg>
+              <span>刷新</span>
+            </button>
+            <span id="refresh-state" class="refresh-state"></span>
+          </div>
+        </header>
+
+        <section id="view-toolbox" class="view active"></section>
+        <section id="view-settings" class="view"></section>
+        <section id="view-space" class="view"></section>
+        <section id="view-quota" class="view"></section>
+        <section id="view-overview" class="view"></section>
+        <section id="view-groups" class="view"></section>
+        <section id="view-privates" class="view"></section>
+        <section id="view-requests" class="view"></section>
+        <section id="view-costs" class="view"></section>
+      </main>
+    </div>
+
+    <div id="drawer" class="drawer hidden" aria-hidden="true">
+      <div class="drawer-backdrop" data-close-drawer></div>
+      <aside class="drawer-panel" role="dialog" aria-modal="true" aria-label="请求详情">
+        <div id="drawer-head" class="drawer-head"></div>
+        <div id="drawer-tabs" class="tabs"></div>
+        <div id="drawer-body" class="drawer-body"></div>
+      </aside>
+    </div>
+
+    <div id="toast" class="toast" role="status"></div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

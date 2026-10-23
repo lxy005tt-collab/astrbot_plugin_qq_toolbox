@@ -1,0 +1,8 @@
+name: astrbot_plugin_private_tts
+display_name: QQ随机语音
+desc: QQ 普通 AI 回复按私聊、群聊各自概率转换为语音；可由独立模型参考上下文优化语气，发送成功状态按会话反馈。
+version: v0.3.0
+author: vivi
+astrbot_version: ">=4.29.1,<4.30"
+support_platforms:
+  - aiocqhttp

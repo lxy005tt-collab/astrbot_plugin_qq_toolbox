@@ -1,0 +1,7 @@
+name: astrbot_plugin_observatory
+display_name: Bot 观察台
+desc: 只读观察主聊天链路：主模型实际输入、回复、公开思考、token/估算费用与上下文压缩。不调用模型，不发送 QQ 消息。
+version: v1.0.0
+author: 本地观察台
+repo: ""
+astrbot_version: ">=4.29.1,<4.30"

@@ -1,0 +1,140 @@
+{
+  "enabled": {
+    "type": "bool",
+    "description": "启用真实生活",
+    "default": true
+  },
+  "private_enabled": {
+    "type": "bool",
+    "description": "私聊注入生活状态",
+    "default": true
+  },
+  "group_enabled": {
+    "type": "bool",
+    "description": "群聊注入生活状态",
+    "default": true
+  },
+  "schedule_judge": {
+    "type": "object",
+    "description": "独立日程判断",
+    "hint": "只让独立模型选择需要哪些日程资料；具体内容从本地课表读取。不会传入聊天人格、系统提示或工具结果。",
+    "items": {
+      "enabled": {
+        "type": "bool",
+        "description": "启用独立模型判断",
+        "default": true,
+        "hint": "关闭时恢复为每轮注入简短当前状态，其他日期由聊天模型按需查询。"
+      },
+      "provider_id": {
+        "type": "string",
+        "description": "日程判断模型",
+        "default": "",
+        "_special": "select_provider",
+        "hint": "使用独立判断模型选择日程资料，可在 Provider 列表中选择本机已配置的模型。不可用时只提供当前状态，不自动切换。",
+        "invisible": true
+      },
+      "context_messages": {
+        "type": "int",
+        "description": "参考最近聊天条数",
+        "default": 5,
+        "slider": {
+          "min": 0,
+          "max": 20,
+          "step": 1
+        },
+        "hint": "仅参考当前会话中最近的用户和助手聊天正文，不含本轮消息。0 不传历史；最高 20 条，每条最多 1200 字符。"
+      },
+      "timeout_seconds": {
+        "type": "float",
+        "description": "判断超时（秒）",
+        "default": 30,
+        "slider": {
+          "min": 1,
+          "max": 60,
+          "step": 1
+        },
+        "hint": "判断失败或超时时退回简短当前状态，保留按需查询其他日期的能力。"
+      },
+      "model_connection": {
+        "type": "object",
+        "description": "日程判断模型",
+        "hint": "此功能可单独填写 URL、Key 和模型名，也可选择后台已有模型。",
+        "toolbox_model_kind": "text",
+        "items": {
+          "source": {
+            "type": "string",
+            "description": "模型来源",
+            "options": [
+              "后台模型",
+              "自定义接口"
+            ],
+            "default": "后台模型"
+          },
+          "provider_id": {
+            "type": "string",
+            "description": "后台模型",
+            "default": "",
+            "_special": "select_provider",
+            "hint": "仅在选择后台模型时使用。文字模型留空跟随当前会话/默认模型。生图和检索请选择支持相应能力的 OpenAI 兼容提供商。"
+          },
+          "base_url": {
+            "type": "string",
+            "description": "OpenAI 兼容接口 URL",
+            "default": "",
+            "hint": "填写该功能独立使用的根地址，例如 https://example.com/v1。"
+          },
+          "api_key": {
+            "type": "string",
+            "description": "接口 Key",
+            "default": "",
+            "secret": true,
+            "hint": "此功能单独使用，不会自动借用其他功能的 Key。无鉴权的本地服务可留空。"
+          },
+          "model": {
+            "type": "string",
+            "description": "模型名称",
+            "default": "",
+            "hint": "填写这个接口实际支持的模型名称。"
+          },
+          "timeout_seconds": {
+            "type": "int",
+            "description": "请求超时（秒）",
+            "default": 60,
+            "slider": {
+              "min": 1,
+              "max": 600,
+              "step": 1
+            }
+          }
+        }
+      }
+    }
+  },
+  "student_identity": {
+    "type": "string",
+    "description": "学生身份",
+    "default": "地理学专业大学生"
+  },
+  "classes_enabled": {
+    "type": "bool",
+    "description": "启用固定课程",
+    "hint": "课表按普通教学周每周重复；放假时可关闭，只保留日常作息。",
+    "default": true
+  },
+  "weekly_courses": {
+    "type": "text",
+    "description": "每周课表",
+    "hint": "每行：周一 08:00-09:40 自然地理学 | 教室。地点可省略。支持周一至周日、每天、工作日、周末。",
+    "editor_mode": true,
+    "editor_language": "plaintext",
+    "default": "周一 08:00-09:40 自然地理学 | 教室\n周一 10:00-11:40 自然地理学 | 教室\n周二 10:00-11:40 地图学 | 教室\n周二 14:00-15:40 遥感概论 | 教室\n周三 08:00-09:40 气象学与气候学 | 教室\n周三 14:00-15:40 地理信息系统实验 | GIS实验室\n周三 16:00-17:40 地理信息系统实验 | GIS实验室\n周四 10:00-11:40 人文地理学 | 教室\n周五 08:00-09:40 地理信息系统 | 教室\n周五 14:00-15:40 区域地理学 | 教室"
+  },
+  "daily_routine": {
+    "type": "text",
+    "description": "日常作息",
+    "hint": "每行：每天 23:00-07:00 睡觉 | 宿舍。支持跨午夜；有课时课程优先，同一作息内请勿重叠。",
+    "editor_mode": true,
+    "editor_language": "plaintext",
+    "default": "每天 23:00-07:00 睡觉 | 宿舍\n每天 07:00-07:30 起床、洗漱 | 宿舍\n每天 07:30-08:00 吃早餐、准备出门 | 食堂或校园\n每天 08:00-11:40 自习或自由安排 | 校园\n每天 11:40-12:30 吃午饭 | 食堂\n每天 12:30-13:30 午休 | 宿舍\n每天 13:30-14:00 整理书本、准备下午的安排 | 校园\n每天 14:00-17:40 自习或自由活动 | 校园\n每天 17:40-18:30 吃晚饭 | 食堂\n每天 18:30-19:00 散步、休息 | 校园\n每天 19:00-21:00 晚间自习、整理地理学笔记或做作业 | 宿舍或自习室\n每天 21:00-22:30 自由活动、聊天或放松 | 宿舍\n每天 22:30-23:00 洗漱、准备睡觉 | 宿舍"
+  }
+}

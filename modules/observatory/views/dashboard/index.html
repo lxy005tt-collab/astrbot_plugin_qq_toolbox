@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bot 观察台</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">◉</div>
+          <div class="brand-text">
+            <strong>Bot 观察台</strong>
+            <small>主聊天只读观察</small>
+          </div>
+        </div>
+        <nav id="nav" class="nav">
+          <button data-view="overview" class="nav-item active">总览</button>
+          <button data-view="groups" class="nav-item">群聊</button>
+          <button data-view="privates" class="nav-item">私聊</button>
+          <button data-view="requests" class="nav-item">主模型调用</button>
+          <button data-view="costs" class="nav-item">费用与设置</button>
+        </nav>
+        <div class="sidebar-foot">
+          <div class="health-line">
+            <span id="health-dot" class="dot"></span>
+            <span id="health-text">连接中…</span>
+          </div>
+          <div id="scope-note" class="tiny">只统计主聊天链路，辅助模型调用不计入。</div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div class="title-block">
+            <h1 id="view-title">总览</h1>
+            <p id="view-subtitle">正在读取观察台…</p>
+          </div>
+          <div class="topbar-actions">
+            <div id="range-tabs" class="seg" role="tablist">
+              <button data-range="today">今日</button>
+              <button data-range="24h" class="active">24 小时</button>
+              <button data-range="7d">7 天</button>
+            </div>
+            <button id="refresh-btn" class="btn ghost" title="立即刷新">刷新</button>
+            <span id="refresh-state" class="muted tiny"></span>
+          </div>
+        </header>
+
+        <section id="view-overview" class="view active"></section>
+        <section id="view-groups" class="view"></section>
+        <section id="view-privates" class="view"></section>
+        <section id="view-requests" class="view"></section>
+        <section id="view-costs" class="view"></section>
+      </main>
+    </div>
+
+    <div id="drawer" class="drawer hidden" aria-hidden="true">
+      <div class="drawer-backdrop" data-close-drawer></div>
+      <aside class="drawer-panel" role="dialog" aria-modal="true" aria-label="请求详情">
+        <div id="drawer-head" class="drawer-head"></div>
+        <div id="drawer-tabs" class="tabs"></div>
+        <div id="drawer-body" class="drawer-body"></div>
+      </aside>
+    </div>
+
+    <div id="toast" class="toast" role="status"></div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

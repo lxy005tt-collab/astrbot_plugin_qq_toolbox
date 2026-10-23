@@ -1,0 +1,138 @@
+{
+  "enabled": {
+    "type": "bool",
+    "description": "开启 QQ 随机语音",
+    "default": true
+  },
+  "provider_id": {
+    "type": "string",
+    "description": "后台语音提供商",
+    "default": "",
+    "hint": "仅使用 AstrBot 后台已配置的语音提供商；留空跟随后台默认语音。不在工具箱内填写语音 URL 或 Key。",
+    "toolbox_provider_kind": "tts",
+    "_special": "select_provider_tts"
+  },
+  "private_probability": {
+    "type": "float",
+    "description": "私聊语音触发概率",
+    "default": 0.15,
+    "slider": {
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    "hint": "每条完整的 QQ 私聊 AI 回复独立抽取一次；0.15 表示约 15%，其余发文字。指令结果、图片和表情包不参与；失败回退文字。"
+  },
+  "speech_optimization": {
+    "type": "object",
+    "description": "语音表达优化",
+    "hint": "只有回复已经抽中语音时，才参考最近对话优化声音表现。保留原台词、音色和语音概率；适用于 Fish S2 系列。",
+    "items": {
+      "enabled": {
+        "type": "bool",
+        "description": "开启语音表达优化",
+        "default": true
+      },
+      "provider_id": {
+        "type": "string",
+        "description": "语音优化模型",
+        "default": "",
+        "_special": "select_provider",
+        "hint": "选择专门优化语音的聊天模型；留空跟随当前会话模型。模型不可用时直接沿用原文，不自动切换到其他优化模型。",
+        "invisible": true
+      },
+      "context_messages": {
+        "type": "int",
+        "description": "参考最近对话条数",
+        "default": 8,
+        "slider": {
+          "min": 0,
+          "max": 30,
+          "step": 1
+        },
+        "hint": "只提取同一轮聊天请求中的用户和助手文字，以及当前消息；0 不带历史，仍参考当前消息和回复。"
+      },
+      "timeout_seconds": {
+        "type": "float",
+        "description": "优化超时（秒）",
+        "default": 12,
+        "slider": {
+          "min": 1,
+          "max": 60,
+          "step": 1
+        },
+        "hint": "超过时限直接朗读原文，不阻断原有语音流程。"
+      },
+      "prompt": {
+        "type": "text",
+        "description": "语音优化规则",
+        "default": "",
+        "hint": "留空使用内置规则：按上下文选择自然的情绪、音量和语速，不改写台词。可填写偏好的声音表现规则；JSON 输出格式由插件约束。"
+      },
+      "model_connection": {
+        "type": "object",
+        "description": "语音表达优化模型",
+        "hint": "此功能可单独填写 URL、Key 和模型名，也可选择后台已有模型。",
+        "toolbox_model_kind": "text",
+        "items": {
+          "source": {
+            "type": "string",
+            "description": "模型来源",
+            "options": [
+              "后台模型",
+              "自定义接口"
+            ],
+            "default": "后台模型"
+          },
+          "provider_id": {
+            "type": "string",
+            "description": "后台模型",
+            "default": "",
+            "_special": "select_provider",
+            "hint": "仅在选择后台模型时使用。文字模型留空跟随当前会话/默认模型。生图和检索请选择支持相应能力的 OpenAI 兼容提供商。"
+          },
+          "base_url": {
+            "type": "string",
+            "description": "OpenAI 兼容接口 URL",
+            "default": "",
+            "hint": "填写该功能独立使用的根地址，例如 https://example.com/v1。"
+          },
+          "api_key": {
+            "type": "string",
+            "description": "接口 Key",
+            "default": "",
+            "secret": true,
+            "hint": "此功能单独使用，不会自动借用其他功能的 Key。无鉴权的本地服务可留空。"
+          },
+          "model": {
+            "type": "string",
+            "description": "模型名称",
+            "default": "",
+            "hint": "填写这个接口实际支持的模型名称。"
+          },
+          "timeout_seconds": {
+            "type": "int",
+            "description": "请求超时（秒）",
+            "default": 60,
+            "slider": {
+              "min": 1,
+              "max": 600,
+              "step": 1
+            }
+          }
+        }
+      }
+    }
+  },
+  "group_probability": {
+    "type": "float",
+    "description": "群聊语音触发概率",
+    "default": 0.05,
+    "slider": {
+      "min": 0,
+      "max": 1,
+      "step": 0.01
+    },
+    "hint": "每条普通群聊 AI 回复独立抽取一次；0.05 表示约 5%。原有的单表情包主动气泡不参与。"
+  }
+}

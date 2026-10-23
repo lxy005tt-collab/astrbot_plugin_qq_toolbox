@@ -1,0 +1,12 @@
+{
+  "views": {
+    "dashboard": {
+      "title": "QQ Bot 工具箱"
+    }
+  },
+  "pages": {
+    "额度管理": {
+      "title": "绘图额度管理"
+    }
+  }
+}

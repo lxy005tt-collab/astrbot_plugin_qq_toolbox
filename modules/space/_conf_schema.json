@@ -1,0 +1,382 @@
+{
+  "enabled": {
+    "type": "bool",
+    "description": "启用 QQ 空间助手",
+    "default": true
+  },
+  "publish_enabled": {
+    "type": "bool",
+    "description": "允许发布说说",
+    "default": true,
+    "hint": "关闭后仅能读取空间；不会定时或自行发布。"
+  },
+  "llm_enabled": {
+    "type": "bool",
+    "description": "向模型提供空间工具",
+    "default": true,
+    "hint": "授权用户可通过自然语言让 bot 发空间、看评论和留言。"
+  },
+  "image_generation_enabled": {
+    "type": "bool",
+    "description": "允许用模型生成空间配图",
+    "default": true,
+    "hint": "配图可选，不会强制每条生图。复用 OpenAI 画图插件和现有接口、模型，产生原接口费用。需要生图时失败则不发布。"
+  },
+  "schedule_enabled": {
+    "type": "bool",
+    "description": "启用随机间隔主动发空间",
+    "default": true,
+    "hint": "在下列小时数范围内随机安排一次唤醒，到点让模型自主写日记、日常等，再决定是否配图，发布一次。首次启用也等待随机间隔。"
+  },
+  "interval_min_hours": {
+    "type": "float",
+    "description": "随机发布的最小间隔（小时）",
+    "default": 1.0,
+    "slider": {
+      "min": 1,
+      "max": 144,
+      "step": 1
+    }
+  },
+  "interval_max_hours": {
+    "type": "float",
+    "description": "随机发布的最大间隔（小时）",
+    "default": 144.0,
+    "slider": {
+      "min": 1,
+      "max": 144,
+      "step": 1
+    },
+    "hint": "可调范围 1～144 小时，须大于等于最小间隔；相等表示固定间隔。下次唤醒时间会保存，重启不重新计时；离线错过的任务不补发。"
+  },
+  "schedule_persona_id": {
+    "type": "string",
+    "description": "主动发布使用的人格 ID",
+    "default": "",
+    "hint": "留空使用默认人格；多账号时可填对应人格 ID。"
+  },
+  "schedule_provider_id": {
+    "type": "string",
+    "description": "主动写说说的聊天模型 ID",
+    "default": "",
+    "hint": "留空跟随 AstrBot 当前默认聊天模型。配图另外复用已有生图模型。",
+    "invisible": true
+  },
+  "schedule_writing_hint": {
+    "type": "text",
+    "description": "主动发布的写作偏好（可选）",
+    "default": "",
+    "hint": "例如：像平时发空间那样自然，日记、日常、随想都可以，不要固定模板。具体内容和是否配图由模型决定。"
+  },
+  "fixed_enabled": {
+    "type": "bool",
+    "description": "启用定点发布任务",
+    "default": true,
+    "hint": "与随机间隔独立；添加任务后生效，默认任务列表为空。"
+  },
+  "fixed_tasks": {
+    "type": "template_list",
+    "description": "定点发布任务",
+    "default": [],
+    "hint": "可添加多个任务，分别设定时间、主题/原文和配图方式。每天任务和指定日期的一次性任务都支持，使用北京时间。",
+    "templates": {
+      "post": {
+        "name": "定点发空间",
+        "display_item": "name",
+        "items": {
+          "name": {
+            "type": "string",
+            "description": "任务名称",
+            "default": "空间定点发布"
+          },
+          "enabled": {
+            "type": "bool",
+            "description": "启用此任务",
+            "default": true
+          },
+          "when": {
+            "type": "string",
+            "description": "发布时间（北京时间）",
+            "default": "每天21:00",
+            "hint": "每天21:00 表示每日重复；2026-10-24T21:00 表示指定日期只发一次。"
+          },
+          "mode": {
+            "type": "string",
+            "description": "内容方式",
+            "default": "按要求创作",
+            "options": [
+              "按要求创作",
+              "原文发布"
+            ]
+          },
+          "instruction": {
+            "type": "text",
+            "description": "主题 / 创作要求 / 要发布的原文",
+            "default": "",
+            "hint": "例如：写一篇今天上课后的日记。选原文发布时，此处文字原样发出。"
+          },
+          "image_mode": {
+            "type": "string",
+            "description": "是否配图",
+            "default": "模型决定",
+            "options": [
+              "模型决定",
+              "不配图",
+              "模型生图"
+            ],
+            "hint": "创作模式下可让模型判断；原文模式下，只有选模型生图才调用生图接口。"
+          },
+          "image_prompt": {
+            "type": "text",
+            "description": "配图提示词（可选）",
+            "default": "",
+            "hint": "留空由正文/创作模型决定，填入则使用指定画面要求。"
+          },
+          "mimi_portrait": {
+            "type": "bool",
+            "description": "配图需要 mimi 本人出镜",
+            "default": false,
+            "hint": "开启后使用已保存的人物参考图；普通题材保持关闭。"
+          }
+        }
+      }
+    }
+  },
+  "allowed_users": {
+    "type": "list",
+    "description": "额外授权的 QQ 号",
+    "default": [],
+    "hint": "AstrBot 管理员始终可用。此列表中的 QQ 同时拥有读取和发布权限，请只填信任的人。"
+  },
+  "platform_id": {
+    "type": "string",
+    "description": "QQ 平台 ID",
+    "default": "",
+    "hint": "单个 NapCat 平台留空即可；多个机器人时填写 AstrBot 平台 ID。只操作该账号自己的空间。"
+  },
+  "timeout_seconds": {
+    "type": "int",
+    "description": "空间请求超时（秒）",
+    "default": 45
+  },
+  "max_read_count": {
+    "type": "int",
+    "description": "一次最多读取的条数",
+    "default": 20,
+    "hint": "1～100；留言板和说说列表均支持起始位置分页。"
+  },
+  "writing_model": {
+    "type": "object",
+    "description": "空间文案模型",
+    "hint": "此功能可单独填写 URL、Key 和模型名，也可选择后台已有模型。",
+    "toolbox_model_kind": "text",
+    "items": {
+      "source": {
+        "type": "string",
+        "description": "模型来源",
+        "options": [
+          "后台模型",
+          "自定义接口"
+        ],
+        "default": "后台模型"
+      },
+      "provider_id": {
+        "type": "string",
+        "description": "后台模型",
+        "default": "",
+        "_special": "select_provider",
+        "hint": "仅在选择后台模型时使用。文字模型留空跟随当前会话/默认模型。生图和检索请选择支持相应能力的 OpenAI 兼容提供商。"
+      },
+      "base_url": {
+        "type": "string",
+        "description": "OpenAI 兼容接口 URL",
+        "default": "",
+        "hint": "填写该功能独立使用的根地址，例如 https://example.com/v1。"
+      },
+      "api_key": {
+        "type": "string",
+        "description": "接口 Key",
+        "default": "",
+        "secret": true,
+        "hint": "此功能单独使用，不会自动借用其他功能的 Key。无鉴权的本地服务可留空。"
+      },
+      "model": {
+        "type": "string",
+        "description": "模型名称",
+        "default": "",
+        "hint": "填写这个接口实际支持的模型名称。"
+      },
+      "timeout_seconds": {
+        "type": "int",
+        "description": "请求超时（秒）",
+        "default": 60,
+        "slider": {
+          "min": 1,
+          "max": 600,
+          "step": 1
+        }
+      }
+    }
+  },
+  "image_model": {
+    "type": "object",
+    "description": "空间配图模型",
+    "hint": "此功能可单独填写 URL、Key 和模型名，也可选择后台已有模型。默认复用画图模块配置；执行空间配图需要启用画图模块。",
+    "toolbox_model_kind": "space_image",
+    "items": {
+      "source": {
+        "type": "string",
+        "description": "模型来源",
+        "options": [
+          "复用画图模块",
+          "后台模型",
+          "自定义接口"
+        ],
+        "default": "复用画图模块"
+      },
+      "provider_id": {
+        "type": "string",
+        "description": "后台模型",
+        "default": "",
+        "_special": "select_provider",
+        "hint": "仅在选择后台模型时使用。文字模型留空跟随当前会话/默认模型。生图和检索请选择支持相应能力的 OpenAI 兼容提供商。"
+      },
+      "base_url": {
+        "type": "string",
+        "description": "OpenAI 兼容接口 URL",
+        "default": "",
+        "hint": "填写该功能独立使用的根地址，例如 https://example.com/v1。"
+      },
+      "api_key": {
+        "type": "string",
+        "description": "接口 Key",
+        "default": "",
+        "secret": true,
+        "hint": "此功能单独使用，不会自动借用其他功能的 Key。无鉴权的本地服务可留空。"
+      },
+      "model": {
+        "type": "string",
+        "description": "模型名称",
+        "default": "",
+        "hint": "填写这个接口实际支持的模型名称。"
+      }
+    }
+  },
+  "diary": {
+    "type": "object",
+    "description": "每日日记",
+    "items": {
+      "enabled": {
+        "type": "bool",
+        "description": "每天写日记并发到 QQ 空间",
+        "default": false,
+        "hint": "独立于随机发布和定点任务。到点写完直接发布到本账号空间；仍须开启空间助手和发布权限。离线错过不补发，同一天不重复发布。"
+      },
+      "time": {
+        "type": "string",
+        "description": "每日发布时间（北京时间）",
+        "default": "23:00",
+        "hint": "HH:MM，例如 23:00。凌晨 00:00～00:59 写刚结束的前一天，其余时段写当天。"
+      },
+      "model_connection": {
+        "type": "object",
+        "description": "日记写作模型",
+        "hint": "日记单独使用自己的后台模型或 OpenAI 兼容 URL、Key、模型名。留空后台模型跟随默认模型；不会自动借用自定义空间文案接口。",
+        "toolbox_model_kind": "text",
+        "items": {
+          "source": {
+            "type": "string",
+            "description": "模型来源",
+            "options": [
+              "后台模型",
+              "自定义接口"
+            ],
+            "default": "后台模型"
+          },
+          "provider_id": {
+            "type": "string",
+            "description": "后台模型",
+            "default": "",
+            "_special": "select_provider",
+            "hint": "仅在选择后台模型时使用。文字模型留空跟随当前会话/默认模型。生图和检索请选择支持相应能力的 OpenAI 兼容提供商。"
+          },
+          "base_url": {
+            "type": "string",
+            "description": "OpenAI 兼容接口 URL",
+            "default": "",
+            "hint": "填写该功能独立使用的根地址，例如 https://example.com/v1。"
+          },
+          "api_key": {
+            "type": "string",
+            "description": "接口 Key",
+            "default": "",
+            "secret": true,
+            "hint": "此功能单独使用，不会自动借用其他功能的 Key。无鉴权的本地服务可留空。"
+          },
+          "model": {
+            "type": "string",
+            "description": "模型名称",
+            "default": "",
+            "hint": "填写这个接口实际支持的模型名称。"
+          },
+          "timeout_seconds": {
+            "type": "int",
+            "description": "请求超时（秒）",
+            "default": 60,
+            "slider": {
+              "min": 1,
+              "max": 600,
+              "step": 1
+            }
+          }
+        }
+      },
+      "persona_id": {
+        "type": "string",
+        "description": "日记人格 ID",
+        "default": "",
+        "hint": "留空沿用空间主动发布的人格；仍为空则使用 AstrBot 默认人格。只使用该人格参与过的私聊素材。"
+      },
+      "include_private_chats": {
+        "type": "bool",
+        "description": "参考当天参与过的私聊",
+        "default": true,
+        "hint": "只采集本账号正常回复过的私聊，不读取群聊。素材从启用后积累；只取当前日记人格的记录，写经历和感受，不公开原话及他人隐私。关闭后不再采集或使用私聊素材。"
+      },
+      "include_life": {
+        "type": "bool",
+        "description": "参考自己的角色生活资料",
+        "default": true,
+        "hint": "参考真实生活模块的课表和作息。日程是安排，不能把自由活动、未来安排或对方的经历一概写成自己已经做过。"
+      },
+      "writing_hint": {
+        "type": "text",
+        "description": "日记写作要求",
+        "default": "用自己的口吻写今天的日记，写自己的经历、所想所感。挑几件在意的小事自然展开，200～500字，不写成聊天流水账，也不必每天使用同一种格式。",
+        "hint": "可填写篇幅、语气、想记录的重点。当天可用资料和人格另行提供。"
+      },
+      "image_mode": {
+        "type": "string",
+        "description": "日记配图",
+        "default": "不配图",
+        "options": [
+          "不配图",
+          "模型决定",
+          "模型生图"
+        ],
+        "hint": "配图不是必需。需要配图时使用上方空间配图模型，另有生图费用；纯文字不会调用生图模型。"
+      },
+      "max_context_chars": {
+        "type": "int",
+        "description": "每天最多提供的私聊素材字数",
+        "default": 16000,
+        "slider": {
+          "min": 2000,
+          "max": 60000,
+          "step": 1000
+        },
+        "hint": "超出时优先保留当天较新的片段；越大输入 token 越多。私聊素材本地保留近 7 天，已生成的日记另行保存。"
+      }
+    }
+  }
+}

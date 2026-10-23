@@ -1,0 +1,9 @@
+name: astrbot_plugin_media_reply_filter
+display_name: 复读机+更好的主动回复
+desc: 随机与跟随复读、结合群聊上下文的主动回复判断，以及群聊艾特等待、私聊合并等待、艾特冷却、休眠、人设保护、图片过滤与撤回联动。
+version: v1.10.4
+author: vivi
+repo: https://github.com/lxy005tt-collab/astrbot_plugin_media_reply_filter
+astrbot_version: ">=4.29.1,<4.30"
+support_platforms:
+  - aiocqhttp

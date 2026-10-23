@@ -1,0 +1,20 @@
+{
+  "characters": [
+    {
+      "name": "奶蛙",
+      "file": "milk_frog_turnaround.jpg",
+      "width": 1280,
+      "height": 720,
+      "sha256": "3abaad422efbb14abdaccc27797ec1f3c51972a6a8e6e81ded4b201419af04ea",
+      "source": "用户提供的现有角色三视图，按用户要求随插件分发"
+    },
+    {
+      "name": "大肥鱼",
+      "file": "fat_fish_turnaround.jpg",
+      "width": 1280,
+      "height": 718,
+      "sha256": "f6269cd842c83dcd0e80c72da42bab60e0c5918a6d2002dcf1ff6ef2c3d6b299",
+      "source": "用户提供的现有角色三视图，按用户要求随插件分发"
+    }
+  ]
+}

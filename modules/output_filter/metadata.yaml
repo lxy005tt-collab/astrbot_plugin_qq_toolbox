@@ -1,0 +1,9 @@
+name: astrbot_plugin_output_word_filter
+display_name: 输出禁词替换
+desc: 每条按“原词 = 替换词”替换 QQ 正文；正文含指定 Markdown 符号时整条屏蔽，不检查隐藏思考文本。
+version: v1.3.0
+author: vivi
+repo: ""
+astrbot_version: ">=4.29.0,<4.30.0"
+support_platforms:
+  - aiocqhttp

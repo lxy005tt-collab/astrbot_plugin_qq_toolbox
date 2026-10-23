@@ -1,0 +1,65 @@
+{
+  "capture_enabled": {
+    "description": "采集主聊天链路",
+    "type": "bool",
+    "default": true,
+    "hint": "只采集主聊天 ToolLoopAgentRunner 发起的直接模型请求。日程判断、语音优化、画图、图片转述等辅助调用不会计入。关闭后不新增记录，仍可查看已有数据。"
+  },
+  "record_incoming_messages": {
+    "description": "补采收到的平台消息",
+    "type": "bool",
+    "default": true,
+    "hint": "仅记录消息元数据与文本，不下载附件、不触发唤醒、不发送消息、不停止事件。"
+  },
+  "record_outgoing_messages": {
+    "description": "记录回复发送结果",
+    "type": "bool",
+    "default": true,
+    "hint": "在原生发送后钩子中记录已进入发送流程的文本，作为“平台已执行发送”的旁证；模型原文仍单独保存在请求详情中。"
+  },
+  "retention_chat_days": {
+    "description": "聊天记录保留天数",
+    "type": "int",
+    "default": 30,
+    "slider": { "min": 1, "max": 3650, "step": 1 }
+  },
+  "retention_reasoning_days": {
+    "description": "公开思考正文保留天数",
+    "type": "int",
+    "default": 7,
+    "slider": { "min": 1, "max": 3650, "step": 1 }
+  },
+  "retention_snapshot_days": {
+    "description": "完整请求快照与回复正文保留天数",
+    "type": "int",
+    "default": 7,
+    "slider": { "min": 1, "max": 3650, "step": 1 }
+  },
+  "retention_usage_days": {
+    "description": "用量与估算费用明细保留天数",
+    "type": "int",
+    "default": 180,
+    "slider": { "min": 1, "max": 3650, "step": 1 }
+  },
+  "data_budget_gb": {
+    "description": "插件正文数据预算（GB）",
+    "type": "float",
+    "default": 2.0,
+    "slider": { "min": 0.1, "max": 200, "step": 0.1 },
+    "hint": "超出预算时优先删除最旧的正文快照，保留用量摘要并标记“正文已过期”。"
+  },
+  "refresh_seconds": {
+    "description": "页面自动刷新间隔（秒）",
+    "type": "int",
+    "default": 10,
+    "slider": { "min": 0, "max": 300, "step": 1 },
+    "hint": "0 表示关闭自动刷新。页面切到后台时暂停。"
+  },
+  "max_message_chars": {
+    "description": "单条聊天文本保存上限（字符）",
+    "type": "int",
+    "default": 8000,
+    "slider": { "min": 500, "max": 200000, "step": 500 },
+    "hint": "超出部分截断并标记；不影响原生聊天记录本身。"
+  }
+}

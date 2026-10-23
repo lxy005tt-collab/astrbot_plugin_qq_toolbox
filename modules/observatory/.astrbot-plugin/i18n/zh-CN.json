@@ -1,0 +1,16 @@
+{
+  "metadata": {
+    "display_name": "Bot 观察台",
+    "desc": "只读观察主聊天链路：实际输入、回复、公开思考、token/估算费用与上下文压缩。不调用模型，不发送 QQ 消息。"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "Bot 观察台"
+    }
+  },
+  "views": {
+    "dashboard": {
+      "title": "Bot 观察台"
+    }
+  }
+}

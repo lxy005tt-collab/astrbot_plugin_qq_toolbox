@@ -1,0 +1,4 @@
+aiohttp>=3.9,<4
+Pillow>=10
+emoji>=2.14,<3
+json5>=0.9

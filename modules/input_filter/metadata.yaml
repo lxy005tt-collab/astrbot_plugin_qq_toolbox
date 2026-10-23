@@ -1,0 +1,8 @@
+name: astrbot_plugin_model_input_filter
+display_name: 模型输入屏蔽
+desc: 在 QQ 消息处理前应用现有输入关键词表，命中后整条忽略，不进入模型、绘图或学习流程。
+version: v0.1.0
+author: vivi
+astrbot_version: ">=4.29.1,<4.30.0"
+support_platforms:
+  - aiocqhttp

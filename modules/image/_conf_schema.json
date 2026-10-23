@@ -1,0 +1,455 @@
+{
+  "base_url": {
+    "type": "string",
+    "description": "OpenAI 兼容 API 地址",
+    "default": "",
+    "hint": "填写兼容 OpenAI Images API 的根地址，建议精确到 /v1，例如 https://api.openai.com/v1。",
+    "invisible": true
+  },
+  "api_key": {
+    "type": "string",
+    "description": "API Key",
+    "default": "",
+    "hint": "仅保留用于旧配置迁移；新设置请使用生图与改图模型。",
+    "obvious_hint": true,
+    "invisible": true,
+    "secret": true
+  },
+  "model": {
+    "type": "string",
+    "description": "图像模型",
+    "default": "",
+    "hint": "默认使用 OpenAI 官方的 gpt-image-2，也可以改成兼容服务上的其他图像模型名。",
+    "invisible": true
+  },
+  "generation_timeout": {
+    "type": "int",
+    "description": "生图请求超时时间（秒）",
+    "default": 180,
+    "min": 30,
+    "max": 600,
+    "hint": "控制调用 images/generations 接口的总超时时间。"
+  },
+  "download_timeout": {
+    "type": "int",
+    "description": "图片下载超时时间（秒）",
+    "default": 60,
+    "min": 5,
+    "max": 300,
+    "hint": "当上游返回图片 URL 而不是 base64 时，控制下载图片文件的总超时时间。"
+  },
+  "retry_count": {
+    "type": "int",
+    "description": "失败重试次数",
+    "default": 1,
+    "min": 0,
+    "max": 5,
+    "hint": "对 408/429/500/502/503/504、网络异常和本地超时进行重试。值为 1 表示失败后额外再试 1 次。"
+  },
+  "retry_backoff_seconds": {
+    "type": "int",
+    "description": "重试退避秒数",
+    "default": 2,
+    "min": 0,
+    "max": 30,
+    "hint": "每次重试前按 attempt × retry_backoff_seconds 等待，例如默认依次等待 2 秒、4 秒。"
+  },
+  "proxy_url": {
+    "type": "string",
+    "description": "代理地址",
+    "default": "",
+    "hint": "可选。填写 HTTP/HTTPS 代理地址，例如 http://127.0.0.1:7890 。会同时用于生图请求和远程图片下载。"
+  },
+  "max_concurrent_tasks": {
+    "type": "int",
+    "description": "最大并发任务数",
+    "default": 3,
+    "min": 1,
+    "max": 10,
+    "hint": "限制同时发起的绘图请求数量，避免并发过高导致上游接口限流。"
+  },
+  "group_daily_quota_enabled": {
+    "type": "bool",
+    "description": "启用 QQ 群友每日绘图额度",
+    "default": true,
+    "hint": "同一 QQ 用户在所有群聊共用额度；普通画图、图生图、修图、画 mimi 和自然语言工具调用统一计数。私聊不受此限制。"
+  },
+  "group_daily_quota_limit": {
+    "type": "int",
+    "description": "每位群友每天免费绘图次数",
+    "default": 8,
+    "min": 1,
+    "hint": "北京时间每天 00:00 重置。每个成功生成并发出的任务算 1 次；排队任务预占额度，失败或取消自动归还。重启保留已用次数。/绘图额度 可查询。"
+  },
+  "group_daily_quota_admin_exempt": {
+    "type": "bool",
+    "description": "AstrBot 管理员免绘图限额",
+    "default": true,
+    "hint": "使用 AstrBot 配置中的管理员身份；仅拥有 QQ 群管理员身份不会自动豁免。"
+  },
+  "private_auto_generation_enabled": {
+    "type": "bool",
+    "description": "私聊允许模型自主生图",
+    "default": true,
+    "hint": "开启后，由当前聊天模型根据私聊语境自行决定是否调用生图工具；不额外调用独立判断模型。关闭后仍允许用户明确提出的绘图、图生图和修图请求。"
+  },
+  "group_auto_generation_enabled": {
+    "type": "bool",
+    "description": "群聊允许模型自主生图",
+    "default": false,
+    "hint": "默认关闭。开启后，模型可在群聊中按语境自主调用生图工具；关闭时仍允许用户明确提出的绘图、图生图和修图请求。群聊每日额度继续适用。"
+  },
+  "web_research_enabled": {
+    "type": "bool",
+    "description": "绘图前联网检索资料和参考图",
+    "default": false,
+    "hint": "开启后可在生图前检索资料或参考图。按需模式由聊天模型判断具体地点、角色外观等是否需要检索；普通创作可直接画。网络参考图只交给生图接口，不直接发给用户。检索失败停止绘图且不扣次数。"
+  },
+  "web_research_mode": {
+    "type": "string",
+    "description": "绘图联网检索方式",
+    "default": "按需检索",
+    "options": [
+      "按需检索",
+      "每次检索"
+    ],
+    "hint": "按需：聊天生图和改图由模型判断是否需要资料，普通场景直接画，减少等待。每次：沿用每张图先检索的流程。手动绘图命令保持原有检索流程；总开关关闭时均不检索。"
+  },
+  "web_research_fallback_enabled": {
+    "type": "bool",
+    "description": "联网检索故障时启用备用搜索",
+    "default": true,
+    "hint": "中转站检索遇到临时故障时，改用 Bing 公开网页和图片结果，不需要额外密钥。固定人物与遮罩编辑只搜文字。权限错误或内容拒绝不会触发备用搜索。两条通道都失败才停止绘图，不扣次数。"
+  },
+  "web_research_model": {
+    "type": "string",
+    "description": "联网检索文本模型",
+    "default": "",
+    "hint": "使用同一 base_url 和 API Key；会增加该文本模型和搜索工具的用量及等待时间，不改变最终生图模型。",
+    "invisible": true
+  },
+  "web_research_image_limit": {
+    "type": "int",
+    "description": "最多上传的联网参考图数量",
+    "default": 2,
+    "min": 0,
+    "max": 3,
+    "hint": "0 为只检索文字资料。人物固定身份参考图及遮罩优先保留原有顺序，不追加外部图片。搜索图不会直接发给群友。"
+  },
+  "web_research_timeout": {
+    "type": "int",
+    "description": "单次联网检索超时（秒）",
+    "default": 60,
+    "min": 10,
+    "max": 120,
+    "hint": "失败最多重试 1 次；图片下载另有最多 25 秒预算。"
+  },
+  "group_image_only": {
+    "type": "bool",
+    "description": "群聊绘图成功时只发成图",
+    "default": true,
+    "hint": "不发送生成中提示、模型确认文字、联网资料、参考图或来源链接。额度用完和绘图失败仍保留提示；其他群聊消息不受影响。"
+  },
+  "character_commands_enabled": {
+    "type": "bool",
+    "description": "启用 /奶蛙 和 /大肥鱼",
+    "default": true,
+    "hint": "同条消息附图时识别主角并替换为固定角色；无图时按提示词创作。未提供提示词和图片时提醒补充。与其他绘图共用每日额度。"
+  },
+  "character_milk_frog_reference": {
+    "type": "string",
+    "description": "奶蛙自定义三视图路径（可选）",
+    "default": "",
+    "hint": "留空使用插件内置的奶蛙三视图。需要替换时填写本机 PNG/JPEG/WebP 图片的绝对路径；清空后恢复内置图。"
+  },
+  "character_fat_fish_reference": {
+    "type": "string",
+    "description": "大肥鱼自定义三视图路径（可选）",
+    "default": "",
+    "hint": "留空使用插件内置的大肥鱼三视图。需要替换时填写本机 PNG/JPEG/WebP 图片的绝对路径；清空后恢复内置图。"
+  },
+  "default_prompt_prefix": {
+    "type": "text",
+    "description": "默认提示词前缀",
+    "default": "",
+    "hint": "会自动拼接到每次绘图请求前，可用于统一风格、画风或安全限制。"
+  },
+  "natural_language_polish_enabled": {
+    "type": "bool",
+    "description": "启用自然语言提示词润色",
+    "default": false,
+    "hint": "仅在 AstrBot Agent 调用 generate_image / edit_image 工具时生效。开启后，会先用当前会话的文本模型按下方模板轻度润色提示词，再发起图像请求。"
+  },
+  "natural_language_polish_prompt_template": {
+    "type": "text",
+    "description": "自然语言优化提示词",
+    "default": "你是生图提示词优化助手。\n\n你的任务是把用户的自然语言绘图需求，整理成适合图像生成模型直接使用的提示词。\n\n要求：\n1. 必须严格保留用户本意，只做轻度润色、补全歧义和整理语序，不能擅自改变主体、动作、关系、场景、风格、时代、情绪、用途。\n2. 如果用户没有明确指定画风，不要强行添加二次元、写实、电影感、赛博朋克、摄影参数、镜头语言、构图术语、画质标签。\n3. 优先输出自然、清晰、适合中文图像模型理解的描述，不要堆砌关键词。\n4. 如果用户需求本身已经很完整，只做轻微整理，不要过度扩写。\n5. 只输出最终提示词本身，不要解释，不要分点，不要加引号，不要输出 JSON、Markdown 或代码块。\n6. 默认沿用用户原始语言；如果用户明确指定了提示词语言，就按用户指定的语言输出。\n",
+    "hint": "仅在开启自然语言提示词润色后生效。这里直接填写给文本模型的系统提示词正文，不需要填写任何变量。"
+  },
+  "detailed_logging": {
+    "type": "bool",
+    "description": "启用详细日志",
+    "default": true,
+    "hint": "开启后会记录平台类型、润色前后提示词、请求摘要、生成耗时、图片发送方式等详细信息。"
+  },
+  "size": {
+    "type": "string",
+    "description": "图片尺寸",
+    "default": "auto",
+    "hint": "支持 auto 或合法分辨率，如 1024x1024、1536x1024、1024x1536、2048x2048。"
+  },
+  "quality": {
+    "type": "string",
+    "description": "图片质量",
+    "default": "auto",
+    "options": [
+      "auto",
+      "low",
+      "medium",
+      "high"
+    ]
+  },
+  "background": {
+    "type": "string",
+    "description": "背景模式",
+    "default": "auto",
+    "options": [
+      "auto",
+      "opaque",
+      "transparent"
+    ],
+    "hint": "gpt-image-2 官方目前不支持 transparent；如果你的兼容服务支持，可自行切换。"
+  },
+  "output_format": {
+    "type": "string",
+    "description": "输出格式",
+    "default": "png",
+    "options": [
+      "png",
+      "jpeg",
+      "webp"
+    ]
+  },
+  "output_compression": {
+    "type": "int",
+    "description": "输出压缩率",
+    "default": 90,
+    "min": 0,
+    "max": 100,
+    "hint": "仅在输出格式为 jpeg 或 webp 时生效。"
+  },
+  "moderation": {
+    "type": "string",
+    "description": "内容过滤强度",
+    "default": "auto",
+    "options": [
+      "auto",
+      "low"
+    ]
+  },
+  "image_count": {
+    "type": "int",
+    "description": "单次生成图片数量",
+    "default": 1,
+    "min": 1,
+    "max": 4
+  },
+  "send_prompt_back": {
+    "type": "bool",
+    "description": "返回润色后的提示词",
+    "default": false,
+    "hint": "仅在开启自然语言提示词润色后生效。开启后，最终回传图片时会额外附带插件本地润色后的提示词。"
+  },
+  "generation_model": {
+    "type": "object",
+    "description": "生图与改图模型",
+    "hint": "此功能可单独填写 URL、Key 和模型名，也可选择后台已有模型。",
+    "toolbox_model_kind": "image",
+    "items": {
+      "source": {
+        "type": "string",
+        "description": "模型来源",
+        "options": [
+          "后台模型",
+          "自定义接口"
+        ],
+        "default": "自定义接口"
+      },
+      "provider_id": {
+        "type": "string",
+        "description": "后台模型",
+        "default": "",
+        "_special": "select_provider",
+        "hint": "仅在选择后台模型时使用。文字模型留空跟随当前会话/默认模型。生图和检索请选择支持相应能力的 OpenAI 兼容提供商。"
+      },
+      "base_url": {
+        "type": "string",
+        "description": "OpenAI 兼容接口 URL",
+        "default": "",
+        "hint": "填写该功能独立使用的根地址，例如 https://example.com/v1。"
+      },
+      "api_key": {
+        "type": "string",
+        "description": "接口 Key",
+        "default": "",
+        "secret": true,
+        "hint": "此功能单独使用，不会自动借用其他功能的 Key。无鉴权的本地服务可留空。"
+      },
+      "model": {
+        "type": "string",
+        "description": "模型名称",
+        "default": "",
+        "hint": "填写这个接口实际支持的模型名称。"
+      }
+    }
+  },
+  "polish_model": {
+    "type": "object",
+    "description": "绘图提示词润色模型",
+    "hint": "此功能可单独填写 URL、Key 和模型名，也可选择后台已有模型。",
+    "toolbox_model_kind": "text",
+    "items": {
+      "source": {
+        "type": "string",
+        "description": "模型来源",
+        "options": [
+          "后台模型",
+          "自定义接口"
+        ],
+        "default": "后台模型"
+      },
+      "provider_id": {
+        "type": "string",
+        "description": "后台模型",
+        "default": "",
+        "_special": "select_provider",
+        "hint": "仅在选择后台模型时使用。文字模型留空跟随当前会话/默认模型。生图和检索请选择支持相应能力的 OpenAI 兼容提供商。"
+      },
+      "base_url": {
+        "type": "string",
+        "description": "OpenAI 兼容接口 URL",
+        "default": "",
+        "hint": "填写该功能独立使用的根地址，例如 https://example.com/v1。"
+      },
+      "api_key": {
+        "type": "string",
+        "description": "接口 Key",
+        "default": "",
+        "secret": true,
+        "hint": "此功能单独使用，不会自动借用其他功能的 Key。无鉴权的本地服务可留空。"
+      },
+      "model": {
+        "type": "string",
+        "description": "模型名称",
+        "default": "",
+        "hint": "填写这个接口实际支持的模型名称。"
+      },
+      "timeout_seconds": {
+        "type": "int",
+        "description": "请求超时（秒）",
+        "default": 60,
+        "slider": {
+          "min": 1,
+          "max": 600,
+          "step": 1
+        }
+      }
+    }
+  },
+  "order_model": {
+    "type": "object",
+    "description": "改图顺序判断模型",
+    "hint": "此功能可单独填写 URL、Key 和模型名，也可选择后台已有模型。",
+    "toolbox_model_kind": "text",
+    "items": {
+      "source": {
+        "type": "string",
+        "description": "模型来源",
+        "options": [
+          "后台模型",
+          "自定义接口"
+        ],
+        "default": "后台模型"
+      },
+      "provider_id": {
+        "type": "string",
+        "description": "后台模型",
+        "default": "",
+        "_special": "select_provider",
+        "hint": "仅在选择后台模型时使用。文字模型留空跟随当前会话/默认模型。生图和检索请选择支持相应能力的 OpenAI 兼容提供商。"
+      },
+      "base_url": {
+        "type": "string",
+        "description": "OpenAI 兼容接口 URL",
+        "default": "",
+        "hint": "填写该功能独立使用的根地址，例如 https://example.com/v1。"
+      },
+      "api_key": {
+        "type": "string",
+        "description": "接口 Key",
+        "default": "",
+        "secret": true,
+        "hint": "此功能单独使用，不会自动借用其他功能的 Key。无鉴权的本地服务可留空。"
+      },
+      "model": {
+        "type": "string",
+        "description": "模型名称",
+        "default": "",
+        "hint": "填写这个接口实际支持的模型名称。"
+      },
+      "timeout_seconds": {
+        "type": "int",
+        "description": "请求超时（秒）",
+        "default": 60,
+        "slider": {
+          "min": 1,
+          "max": 600,
+          "step": 1
+        }
+      }
+    }
+  },
+  "research_model": {
+    "type": "object",
+    "description": "绘图资料检索模型",
+    "hint": "此功能可单独填写 URL、Key 和模型名，也可选择后台已有模型。联网检索还要求接口支持 Responses API 的 web_search 工具；普通聊天接口不一定提供此能力。",
+    "toolbox_model_kind": "research",
+    "items": {
+      "source": {
+        "type": "string",
+        "description": "模型来源",
+        "options": [
+          "后台模型",
+          "自定义接口"
+        ],
+        "default": "后台模型"
+      },
+      "provider_id": {
+        "type": "string",
+        "description": "后台模型",
+        "default": "",
+        "_special": "select_provider",
+        "hint": "仅在选择后台模型时使用。文字模型留空跟随当前会话/默认模型。生图和检索请选择支持相应能力的 OpenAI 兼容提供商。"
+      },
+      "base_url": {
+        "type": "string",
+        "description": "OpenAI 兼容接口 URL",
+        "default": "",
+        "hint": "填写该功能独立使用的根地址，例如 https://example.com/v1。"
+      },
+      "api_key": {
+        "type": "string",
+        "description": "接口 Key",
+        "default": "",
+        "secret": true,
+        "hint": "此功能单独使用，不会自动借用其他功能的 Key。无鉴权的本地服务可留空。"
+      },
+      "model": {
+        "type": "string",
+        "description": "模型名称",
+        "default": "",
+        "hint": "填写这个接口实际支持的模型名称。"
+      }
+    }
+  }
+}

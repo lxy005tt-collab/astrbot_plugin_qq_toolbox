@@ -1,0 +1,6 @@
+name: astrbot_plugin_real_life_state
+display_name: 真实生活
+desc: 独立模型参考本轮消息和可调的最近聊天，按需向聊天模型提供真实课表及日常作息。
+version: v0.2.0
+author: vivi
+astrbot_version: ">=4.29.1,<4.30"

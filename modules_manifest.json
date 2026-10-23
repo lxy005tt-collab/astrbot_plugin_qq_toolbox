@@ -1,0 +1,74 @@
+[
+  {
+    "key": "reply",
+    "legacy": "astrbot_plugin_media_reply_filter",
+    "class_name": "MediaReplyFilter",
+    "display_name": "复读机+更好的主动回复",
+    "author": "vivi",
+    "version": "v1.10.4",
+    "repo": "https://github.com/lxy005tt-collab/astrbot_plugin_media_reply_filter"
+  },
+  {
+    "key": "input_filter",
+    "legacy": "astrbot_plugin_model_input_filter",
+    "class_name": "ModelInputFilter",
+    "display_name": "模型输入屏蔽",
+    "author": "vivi",
+    "version": "v0.1.0",
+    "repo": ""
+  },
+  {
+    "key": "observatory",
+    "legacy": "astrbot_plugin_observatory",
+    "class_name": "BotObservatory",
+    "display_name": "Bot 观察台",
+    "author": "本地观察台",
+    "version": "v1.0.0",
+    "repo": ""
+  },
+  {
+    "key": "image",
+    "legacy": "astrbot_plugin_openai_image",
+    "class_name": "OpenAIImagePlugin",
+    "display_name": "OpenAI 画图",
+    "author": "SanHans",
+    "version": "v1.4.5",
+    "repo": "https://github.com/SanHans/astrbot_plugin_openai_image"
+  },
+  {
+    "key": "output_filter",
+    "legacy": "astrbot_plugin_output_word_filter",
+    "class_name": "OutputWordFilter",
+    "display_name": "输出禁词替换",
+    "author": "vivi",
+    "version": "v1.3.0",
+    "repo": ""
+  },
+  {
+    "key": "voice",
+    "legacy": "astrbot_plugin_private_tts",
+    "class_name": "RandomTTS",
+    "display_name": "QQ随机语音",
+    "author": "vivi",
+    "version": "v0.3.0",
+    "repo": ""
+  },
+  {
+    "key": "space",
+    "legacy": "astrbot_plugin_qzone_helper",
+    "class_name": "QzoneHelperPlugin",
+    "display_name": "QQ 空间助手",
+    "author": "vivi",
+    "version": "0.2.0",
+    "repo": ""
+  },
+  {
+    "key": "life",
+    "legacy": "astrbot_plugin_real_life_state",
+    "class_name": "RealLifePlugin",
+    "display_name": "真实生活",
+    "author": "vivi",
+    "version": "v0.2.0",
+    "repo": ""
+  }
+]

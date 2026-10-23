@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>绘图额度管理</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <main>
+    <header><div><h1>绘图额度管理</h1><p id="summary">正在读取今日额度…</p></div><button id="refresh" type="button">刷新</button></header>
+    <section aria-label="重置绘图额度">
+      <h2>重置今日额度</h2>
+      <p>只清除今天已完成的次数。排队和生成中的任务保留，成功发送后照常计数。</p>
+      <form id="reset-user"><label for="qq">指定 QQ</label><div class="actions"><input id="qq" name="qq" inputmode="numeric" pattern="[0-9]{5,15}" placeholder="输入要重置的 QQ 号" required><button type="submit">重置该群友</button></div></form>
+      <button id="reset-all" class="danger" type="button">重置全部群友今日额度</button>
+    </section>
+    <p id="notice" role="status" aria-live="polite"></p>
+    <section aria-label="群友今日用量">
+      <h2>今日用量</h2>
+      <p id="policy"></p>
+      <div class="table-wrap"><table><thead><tr><th>QQ</th><th>已完成</th><th>进行中</th><th>剩余</th><th>操作</th></tr></thead><tbody id="usage"></tbody></table></div>
+    </section>
+  </main>
+</body>
+</html>
