@@ -14,7 +14,7 @@ from astrbot.api.message_components import At, Face, Image, Plain, Reply
 from astrbot.api.platform import MessageType
 from astrbot.api.star import Context
 from ...runtime import SuiteModule as Star
-from astrbot.core.agent.message import TextPart
+from ...temporary_context import set_temporary_text
 
 from .expression_filter import is_expression_only
 from .active_reply_judge import ACTIVE_REPLY_BOUNDARY, ActiveReplyJudge
@@ -292,45 +292,19 @@ class MediaReplyFilter(Star):
         self._follow_up.watch_request(event, request)
         prepare_topic_request(event, request, self._active_judge.settings.get("topic_reply_prompt", DEFAULT_TOPIC_STYLE))
         images = event.get_extra(IMAGE_CONTEXT_EXTRA, [])
-        if images and not any(
-            getattr(part, "text", "").startswith("近期群聊图片资料（内部上下文）：")
-            for part in request.extra_user_content_parts
-        ):
-            request.extra_user_content_parts.append(
-                TextPart(
-                    text="近期群聊图片资料（内部上下文）：\n"
-                    + json.dumps(images, ensure_ascii=False),
-                )
-            )
+        if images:
+            set_temporary_text(request, "近期群聊图片资料（内部上下文）：\n", json.dumps(images, ensure_ascii=False))
         if event.get_platform_name() == "aiocqhttp":
             hints = image_transport_hints(event)
-            if hints and not any(
-                getattr(part, "text", "").startswith(IMAGE_HINT_HEADER)
-                for part in request.extra_user_content_parts
-            ):
-                request.extra_user_content_parts.append(TextPart(text=hints))
-        if (
-            images or event.get_platform_name() == "aiocqhttp"
-        ) and IMAGE_CONTEXT_BOUNDARY not in request.system_prompt:
-            request.system_prompt = (
-                request.system_prompt.rstrip() + "\n\n" + IMAGE_CONTEXT_BOUNDARY
-            )
-        if (
-            event.get_platform_name() == "aiocqhttp"
-            and event.get_message_type() == MessageType.FRIEND_MESSAGE
-            and PRIVATE_MEME_REPLY_BOUNDARY not in request.system_prompt
-        ):
-            request.system_prompt = (
-                request.system_prompt.rstrip() + "\n\n" + PRIVATE_MEME_REPLY_BOUNDARY
-            )
-        if (
-            event.get_extra("media_reply_filter_active_approved")
-            and not is_topic(event)
-            and ACTIVE_REPLY_BOUNDARY not in request.system_prompt
-        ):
-            request.system_prompt = (
-                request.system_prompt.rstrip() + "\n\n" + ACTIVE_REPLY_BOUNDARY
-            )
+            if hints:
+                set_temporary_text(request, IMAGE_HINT_HEADER, hints.removeprefix(IMAGE_HINT_HEADER))
+        if images or event.get_platform_name() == "aiocqhttp":
+            set_temporary_text(request, "[图片资料使用边界]\n", IMAGE_CONTEXT_BOUNDARY)
+        if (event.get_platform_name() == "aiocqhttp"
+                and event.get_message_type() == MessageType.FRIEND_MESSAGE):
+            set_temporary_text(request, "[私聊表情包边界]\n", PRIVATE_MEME_REPLY_BOUNDARY)
+        if event.get_extra("media_reply_filter_active_approved") and not is_topic(event):
+            set_temporary_text(request, "[主动回复边界]\n", ACTIVE_REPLY_BOUNDARY)
         if not self._guard_enabled(event):
             return
         event.set_extra("enable_reasoning", False)
@@ -340,19 +314,9 @@ class MediaReplyFilter(Star):
         request.contexts = clean_assistant_history(request.contexts or [], fragments)
         reminder = self._message_reminder(event)
         if reminder:
-            if not is_topic(event):
-                # Topic requests are our internal participation instruction,
-                # not words spoken by the triggering member.
-                request.prompt = append_message_reminder(request.prompt, reminder)
+            set_temporary_text(request, "[本轮消息来源提醒]\n", reminder + "\n" + MESSAGE_REMINDER_BOUNDARY)
             request.contexts = tag_user_history(request.contexts, reminder)
-            if MESSAGE_REMINDER_BOUNDARY not in request.system_prompt:
-                request.system_prompt = (
-                    request.system_prompt.rstrip() + "\n\n" + MESSAGE_REMINDER_BOUNDARY
-                )
-        if GROUP_BOUNDARY not in request.system_prompt:
-            request.system_prompt = (
-                request.system_prompt.rstrip() + "\n\n" + GROUP_BOUNDARY
-            )
+        set_temporary_text(request, "[群聊输出边界]\n", GROUP_BOUNDARY)
 
     def _message_reminder(self, event):
         if not self._guard_enabled(event):

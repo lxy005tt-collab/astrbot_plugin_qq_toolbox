@@ -26,7 +26,7 @@ import asyncio
 import inspect
 from typing import Any
 
-from astrbot import logger
+from astrbot.api import logger
 from astrbot.core.agent.context.manager import ContextManager
 from astrbot.core.agent.runners.tool_loop_agent_runner import ToolLoopAgentRunner
 

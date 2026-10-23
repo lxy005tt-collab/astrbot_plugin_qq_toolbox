@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import importlib
 import inspect
 import json
@@ -15,6 +16,7 @@ from .runtime import ModuleContext, PLUGIN_NAME, SectionConfig, bind_handlers
 from . import __version__
 from .webui import ToolboxWebUI
 from .model_routing import ModelRouter, migrate_model_config
+from .storage_paths import migrate_legacy_data
 
 DEFINITIONS = json.loads((Path(__file__).parent / "modules_manifest.json").read_text(encoding="utf-8"))
 COMPONENT_CLASSES = []
@@ -52,6 +54,7 @@ class QQToolbox(Star):
             self._hide_disabled_tools()
             return
         try:
+            await asyncio.to_thread(migrate_legacy_data)
             for definition, component_class in COMPONENT_CLASSES:
                 key = definition["key"]
                 section = SectionConfig(self.config, key)

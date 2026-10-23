@@ -13,14 +13,16 @@ chat context, and never writes to AstrBot's own database or config.
 
 from __future__ import annotations
 
+from ...storage_paths import module_data_dir
+
 import asyncio
 from pathlib import Path
 from typing import Any
 
-from astrbot import logger
+from astrbot.api import logger
 from astrbot.api.event import AstrMessageEvent
 from ...runtime import deferred_filter as filter
-from astrbot.api.star import Context, StarTools
+from astrbot.api.star import Context
 from ...runtime import SuiteModule as Star
 from astrbot.core.config.default import VERSION
 from astrbot.core.utils.astrbot_path import get_astrbot_data_path
@@ -69,7 +71,7 @@ class BotObservatory(Star):
         super().__init__(context)
         self.plugin_config = config
         self.settings = _coerce_settings(config)
-        self.data_dir: Path = StarTools.get_data_dir(PLUGIN_NAME)
+        self.data_dir: Path = module_data_dir("observatory")
         self.storage = Storage(
             self.data_dir,
             defaults=self.settings,

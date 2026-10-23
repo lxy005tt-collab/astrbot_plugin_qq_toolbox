@@ -11,7 +11,7 @@ from weakref import WeakValueDictionary
 from aiocqhttp import Event
 from astrbot.api.platform import MessageType
 from astrbot.core.star.session_llm_manager import SessionServiceManager
-from astrbot.core.utils.astrbot_path import get_astrbot_data_path
+from ...storage_paths import module_data_dir
 
 
 RECOVERY_EXTRA = "private_reply_watchdog_recovery"
@@ -25,7 +25,7 @@ class PrivateReplyWatchdog:
         self.interval = float(settings.get("interval_minutes", 20)) * 60
         if self.interval <= 0:
             raise ValueError("私聊漏回复检查间隔必须大于 0 分钟。")
-        self.path = Path(state_path) if state_path else Path(get_astrbot_data_path()) / "plugin_data/astrbot_plugin_media_reply_filter/private_reply_watchdog.json"
+        self.path = Path(state_path) if state_path else module_data_dir("reply") / "private_reply_watchdog.json"
         self.pending = json.loads(self.path.read_text(encoding="utf-8-sig")).get("pending", {}) if self.path.exists() else {}
         self.running = defaultdict(set)
         self.queued = WeakValueDictionary()

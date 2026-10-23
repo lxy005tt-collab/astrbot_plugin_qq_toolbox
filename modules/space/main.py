@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from ...storage_paths import module_data_dir
+from ...temporary_context import set_temporary_text
+
 import asyncio
 import json
 import re
@@ -57,7 +60,7 @@ class QzoneHelperPlugin(Star):
         super().__init__(context)
         self.config = config
         self._publish_lock = asyncio.Lock()
-        self._db_path = StarTools.get_data_dir("astrbot_plugin_qzone_helper") / "publish.sqlite3"
+        self._db_path = module_data_dir("space") / "publish.sqlite3"
         with closing(sqlite3.connect(self._db_path)) as db, db:
             db.execute("CREATE TABLE IF NOT EXISTS posts (key TEXT PRIMARY KEY, state TEXT NOT NULL, result TEXT NOT NULL)")
         self._probe_task = None
@@ -530,9 +533,8 @@ class QzoneHelperPlugin(Star):
                 request.func_tool.remove_tool(name)
         if allowed and any(request.func_tool.get_tool(name) for name in TOOL_NAMES):
             marker = "[QQ空间助手]"
-            if marker not in request.system_prompt:
-                request.system_prompt += (
-                    "\n\n" + marker + "\n"
+            set_temporary_text(request, marker,
+                    "\n"
                     "你可以用空间工具查看自己的说说、评论和留言板。用户明确要求发空间时，用 publish_qq_space 实际发布；"
                     "发空间不强制配图；可以发纯文字。根据用户要求和文案决定是否用模型生成配图，需要时设 generate_image=true 并传 image_prompt；"
                     "不要先调用会把图发回聊天的 generate_image。"

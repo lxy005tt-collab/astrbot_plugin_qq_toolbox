@@ -7,7 +7,7 @@ from time import monotonic
 
 from astrbot.api.message_components import At, Plain, Record, Reply
 from astrbot.api.platform import MessageType
-from astrbot.core.agent.message import TextPart
+from ...temporary_context import set_temporary_text
 from astrbot.core.star.session_llm_manager import SessionServiceManager
 
 from .active_reply_judge import describe_event
@@ -100,10 +100,8 @@ class ReplyFollowUp:
         if not self.eligible(event):
             return
         payload = event.get_extra(APPROVED)
-        if payload and not any(getattr(part, "text", "").startswith(FOLLOWUP_BOUNDARY)
-                               for part in request.extra_user_content_parts):
-            request.extra_user_content_parts.append(TextPart(
-                text=FOLLOWUP_BOUNDARY + json.dumps(payload, ensure_ascii=False)))
+        if payload:
+            set_temporary_text(request, FOLLOWUP_BOUNDARY, json.dumps(payload, ensure_ascii=False))
         if event.get_extra(WATCH):
             return
         delivery = {"generated": False, "sent": []}

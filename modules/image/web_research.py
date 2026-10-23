@@ -6,7 +6,6 @@ from dataclasses import dataclass, field
 import io
 import ipaddress
 import json
-import logging
 from html.parser import HTMLParser
 from pathlib import Path
 import re
@@ -18,9 +17,7 @@ from xml.etree import ElementTree
 
 import aiohttp
 from PIL import Image as PILImage
-
-
-logger = logging.getLogger("astrbot")
+from astrbot.api import logger
 
 
 class ResearchError(ValueError):

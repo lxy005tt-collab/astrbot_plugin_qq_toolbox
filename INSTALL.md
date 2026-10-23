@@ -20,7 +20,9 @@
 
 设置中的 Key 留空会保留已保存值，勾选清除才会删除。修改后点击「保存并应用」，随后重新打开页面确认即可。
 
-配置保存在 `data/config/astrbot_plugin_qq_toolbox_config.json`。任务、日记、绘图与观察记录在 `data/plugin_data/` 等模块数据目录中，备份时一并保留；各模块沿用相应插件 ID 的数据目录名称。
+配置保存在 `data/config/astrbot_plugin_qq_toolbox_config.json`。任务、日记、图片与观察记录统一保存在 `data/plugin_data/astrbot_plugin_qq_toolbox/` 下的模块子目录，绘图图片位于 `image/images/`。
+
+首次启动会一次性复制整合前的模块数据和旧「绘图图片」目录，并更新新副本中的图片、观察记录文件路径。SQLite 使用只读来源连接进行备份；已有目标文件优先，旧文件保留。迁移完成记录在 `migration-v1.json`，重启不会重复导入。备份时保留本插件配置与整个数据目录；确认迁移无误后再自行清理旧目录。迁移不修改模型、过滤规则、压缩设置或定时配置。
 
 若同时安装了功能相同的其他插件，请按需停用重复处理的功能，避免重复等待、回复或生成。
 

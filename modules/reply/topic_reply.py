@@ -5,7 +5,7 @@ import json
 from astrbot.api.message_components import At, Plain, Reply
 from astrbot.api.platform import MessageType
 from astrbot.builtin_stars.astrbot.group_chat_context import GROUP_HISTORY_HEADER
-from astrbot.core.agent.message import TextPart
+from ...temporary_context import set_temporary_text
 
 TOPIC_EXTRA = "media_reply_filter_topic_context"
 TOPIC_HEADER = "[本次群聊话题资料]\n"
@@ -34,13 +34,12 @@ def prepare_topic_request(event, request, style):
         part for part in request.extra_user_content_parts
         if not getattr(part, "text", "").startswith(GROUP_HISTORY_HEADER)
     ]
-    if not any(getattr(part, "text", "").startswith(TOPIC_HEADER)
-               for part in request.extra_user_content_parts):
-        request.extra_user_content_parts.append(TextPart(text=TOPIC_HEADER + json.dumps(payload, ensure_ascii=False)))
-    request.prompt = "本轮是你自主参与群聊的话题发言。结合本次群聊话题资料，按照当前人格自然表达；无需回复某个指定的人。"
-    boundary = "[群聊话题插话方式]\n" + str(style or DEFAULT_TOPIC_STYLE)
-    if boundary not in request.system_prompt:
-        request.system_prompt = request.system_prompt.rstrip() + "\n\n" + boundary
+    set_temporary_text(request, TOPIC_HEADER, json.dumps(payload, ensure_ascii=False))
+    set_temporary_text(request, "[群聊话题插话方式]\n",
+                       "本轮是你自主参与群聊的话题发言，当前触发消息只是群聊素材，并非指定向你提问。"
+                       "结合本次群聊话题资料，按照当前人格自然表达，无需回复指定的人。\n"
+                       + str(style or DEFAULT_TOPIC_STYLE))
+
 
 
 def topic_components(components):

@@ -1,4 +1,7 @@
 import asyncio
+
+from ...storage_paths import module_data_dir
+from ...temporary_context import set_temporary_text
 import base64
 import contextlib
 import json
@@ -22,7 +25,7 @@ from astrbot.api.event import AstrMessageEvent, MessageChain
 from ...runtime import deferred_filter as filter
 from astrbot.api.message_components import File, Image
 from astrbot.api.provider import LLMResponse, ProviderRequest
-from astrbot.api.star import Context, StarTools
+from astrbot.api.star import Context
 from ...runtime import SuiteModule as Star
 from astrbot.core.agent.run_context import ContextWrapper
 from astrbot.core.agent.tool import FunctionTool, ToolExecResult
@@ -267,14 +270,14 @@ class OpenAIImagePlugin(Star):
         self._tool_registered = False
         self._staged_images: dict[str, StagedImageBatch] = {}
         self._pending_edit_confirmations: dict[str, PendingEditConfirmation] = {}
-        self._image_jobs = ImageJobs(StarTools.get_data_dir("astrbot_plugin_openai_image") / "image_jobs.json")
+        self._image_jobs = ImageJobs(module_data_dir("image") / "image_jobs.json")
         self._group_quota = GroupDrawingQuota(
-            StarTools.get_data_dir("astrbot_plugin_openai_image") / "group_drawing_quota.sqlite3"
+            module_data_dir("image") / "group_drawing_quota.sqlite3"
         )
         max_concurrent_tasks = int(self.config.get("max_concurrent_tasks", 3) or 3)
         self._semaphore = asyncio.Semaphore(max(1, max_concurrent_tasks))
         self._image_temp_dir = str(
-            StarTools.get_data_dir("astrbot_plugin_openai_image").parent.parent / "绘图图片"
+            module_data_dir("image") / "images"
         )
         os.makedirs(self._image_temp_dir, exist_ok=True)
 
@@ -641,15 +644,12 @@ class OpenAIImagePlugin(Star):
 
     @filter.on_llm_request()
     async def guide_image_tool_usage(self, event: AstrMessageEvent, request: ProviderRequest):
-        # Refresh request-local receipts; never rewrite the stored chat/persona.
-        system_prompt = request.system_prompt or ""
-        system_prompt = re.sub(re.escape(JOB_HEADER) + r".*?" + re.escape(JOB_END), "", system_prompt, flags=re.S)
         row = self._image_jobs.latest(self._get_user_scope_key(event))
-        if row is not None:
-            system_prompt += f"\n\n{JOB_HEADER}\n{self._image_jobs.describe(row)}\n{JOB_END}"
-        request.system_prompt = system_prompt
+        set_temporary_text(request, JOB_HEADER,
+                           "\n" + self._image_jobs.describe(row) + "\n" + JOB_END if row is not None else "")
         marker = "[当前会话自主生图设置]"
-        if request.func_tool is None or marker in request.system_prompt:
+        set_temporary_text(request, marker, "")
+        if request.func_tool is None:
             return
         if not any(request.func_tool.get_tool(name) is not None for name in (
             "generate_image", "edit_image", "generate_mimi_image"
@@ -660,8 +660,8 @@ class OpenAIImagePlugin(Star):
             rule = "已开启。你可按聊天语境自主决定是否调用生图工具，仅在自然且有帮助时调用，避免每次回复都生图。"
         else:
             rule = "已关闭。只有用户明确要求绘图或改图时才调用图像工具，不自行配图；普通聊天正常回复。"
-        request.system_prompt += (
-            f"\n\n{marker}\n当前{scope}自主生图{rule}"
+        set_temporary_text(request, marker,
+            f"\n当前{scope}自主生图{rule}"
             "决定提供图片时要实际调用工具，不能只口头承诺。"
             "图像工具是后台任务；启动后只能说还在处理，不能提前声称拍好了、已发或画面具体效果。"
             "进度及已发送记录以 image_task 和当前图片任务状态为准。"
