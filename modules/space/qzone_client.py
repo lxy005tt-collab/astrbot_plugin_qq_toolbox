@@ -25,6 +25,7 @@ DETAIL_URL = BASE + "/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msgdetail_v
 BOARD_URL = BASE + "/proxy/domain/m.qzone.qq.com/cgi-bin/new/get_msgb"
 UPLOAD_URL = "https://up.qzone.qq.com/cgi-bin/upload/cgi_upload_image"
 PUBLISH_URL = BASE + "/proxy/domain/taotao.qzone.qq.com/cgi-bin/emotion_cgi_publish_v6"
+COMMENT_URL = BASE + "/proxy/domain/taotao.qzone.qq.com/cgi-bin/emotion_cgi_re_feeds"
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
 
 
@@ -65,11 +66,12 @@ def body(raw: dict) -> dict:
 def comment_record(item: dict) -> dict:
     replies = item.get("list_3") or item.get("replyList") or []
     return {
-        "id": str(item.get("tid") or item.get("id") or ""),
+        "id": str(item.get("tid") or item.get("id") or item.get("commentid") or item.get("commentId") or ""),
         "qq": str(item.get("uin") or ""),
         "name": plain(item.get("name") or item.get("nickname")),
         "text": plain(item.get("content") or item.get("ubbContent") or item.get("htmlContent")),
         "time": str(item.get("createTime2") or item.get("createTime") or item.get("pubtime") or item.get("created_time") or ""),
+        "private": str(item.get("private") or item.get("isprivate") or "0").lower() in {"1", "true"},
         "replies": [comment_record(x) for x in replies if isinstance(x, dict)],
     }
 
@@ -218,20 +220,44 @@ class QzoneClient:
                 raise PublishUnknown("发布连接中断，结果未知；请先到 QQ 空间确认，勿立即重发。") from exc
             raise QzoneError("连接 QQ 空间失败或超时，请稍后重试。") from exc
 
-    async def list_posts(self, count: int = 5, offset: int = 0) -> dict:
+    async def list_posts(self, count: int = 5, offset: int = 0, *, include_private_comments=True) -> dict:
         raw = await self._request("GET", LIST_URL, params={
             "g_tk": self.gtk, "uin": self.uin, "ftype": 0, "sort": 0,
             "pos": offset, "num": count, "replynum": 100, "format": "json",
-            "code_version": 1, "need_comment": 1, "need_private_comment": 1,
+            "code_version": 1, "need_comment": 1, "need_private_comment": int(include_private_comments),
         })
         return {"total": int(raw.get("total") or 0), "offset": offset,
                 "posts": [post_record(x, self.uin) for x in raw.get("msglist") or [] if isinstance(x, dict)]}
 
-    async def detail(self, tid: str) -> dict:
+    async def detail(self, tid: str, *, include_private_comments=True) -> dict:
         if not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", tid):
             raise QzoneError("说说 ID 格式无效，请先查看空间动态获取 ID。")
-        raw = await self._request("GET", DETAIL_URL, params={"g_tk": self.gtk, "uin": self.uin, "tid": tid, "format": "json"})
+        raw = await self._request("GET", DETAIL_URL, params={"g_tk": self.gtk, "uin": self.uin, "tid": tid, "format": "json",
+            "need_private_comment": int(include_private_comments)})
         return post_record({**raw, "tid": tid}, self.uin)
+
+    async def reply_comment(self, post: dict, parent: dict, target: dict, content: str) -> dict:
+        if str(post.get('qq')) != self.uin:
+            raise QzoneError('只允许回复机器人自己空间下的评论。')
+        tid, comment_id = str(post.get('id', '')), str(parent.get('id', ''))
+        if not all(re.fullmatch(r'[A-Za-z0-9_-]{1,128}', value) for value in (tid, comment_id)):
+            raise QzoneError('说说或主评论 ID 无效，未提交评论。')
+        target_qq, parent_qq = str(target.get('qq', '')), str(parent.get('qq', ''))
+        if not all(value.isascii() and value.isdigit() for value in (self.uin, target_qq, parent_qq)):
+            raise QzoneError('评论作者信息无效，未提交评论。')
+        if target_qq == self.uin or parent.get('private') or target.get('private'):
+            raise QzoneError('不自动回复自己或私密评论。')
+        content = content.strip()
+        if not 0 < len(content) <= 300 or '@{' in content:
+            raise QzoneError('评论正文无效，未提交评论。')
+        nick = re.sub(r'[,{}\r\n]', ' ', plain(target.get('name') or target_qq))[:40]
+        mention = f'@{{uin:{target_qq},nick:{nick},auto:1}} '
+        await self._request('POST', COMMENT_URL, params={'g_tk': self.gtk}, data={
+            'hostUin': self.uin, 'topicId': f'{self.uin}_{tid}', 'content': mention + content,
+            'format': 'json', 'qzreferrer': f'{BASE}/{self.uin}/main', 'commentId': comment_id,
+            'replyUin': target_qq, 'commentUin': parent_qq,
+        }, publishing=True)
+        return {'accepted': True, 'post_id': tid, 'parent_comment_id': comment_id, 'reply_to': target_qq}
 
     async def guestbook(self, count: int = 10, offset: int = 0) -> dict:
         raw = await self._request("GET", BOARD_URL, params={

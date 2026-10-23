@@ -378,5 +378,109 @@
         "hint": "超出时优先保留当天较新的片段；越大输入 token 越多。私聊素材本地保留近 7 天，已生成的日记另行保存。"
       }
     }
+  },
+  "publication_memory_enabled": {
+    "type": "bool",
+    "description": "聊天时知晓已发布的空间内容",
+    "default": false,
+    "hint": "只给已授权用户的私聊临时提供最近 3 条已发布说说或日记摘要，每条最多 300 字；增加输入 token。不依赖向量模型，不包含草稿或私聊素材。"
+  },
+  "comment_reply": {
+    "type": "object",
+    "description": "自己空间的新评论回复",
+    "hint": "只检查本账号最近的说说和日记，模型判断是否需要回应。首次看到旧说说先建立基线，不补回旧评论；回复直接发到空间，不发到 QQ 聊天。",
+    "items": {
+      "enabled": {
+        "type": "bool",
+        "description": "启用新评论自动回复",
+        "default": false,
+        "hint": "会真实对外发表评论，并在有新评论时消耗模型 token。跟随上方发布权限总开关。"
+      },
+      "interval_minutes": {
+        "type": "int",
+        "description": "检查间隔（分钟）",
+        "default": 3,
+        "slider": {
+          "min": 1,
+          "max": 60,
+          "step": 1
+        }
+      },
+      "recent_posts": {
+        "type": "int",
+        "description": "检查最近几条说说",
+        "default": 10,
+        "slider": {
+          "min": 1,
+          "max": 30,
+          "step": 1
+        },
+        "hint": "仅处理空间接口实际返回的可见评论和楼中楼，不保证覆盖全部历史评论。"
+      },
+      "max_replies_per_check": {
+        "type": "int",
+        "description": "每轮最多处理的新评论数",
+        "default": 2,
+        "slider": {
+          "min": 1,
+          "max": 10,
+          "step": 1
+        },
+        "hint": "模型可决定不回复，其余新评论留待后续检查；不回复自己或已识别的私密评论。失败、拦截和结果未知不自动重发。"
+      },
+      "model_connection": {
+        "type": "object",
+        "description": "评论判断与回复模型",
+        "hint": "日记单独使用自己的后台模型或 OpenAI 兼容 URL、Key、模型名。留空后台模型跟随默认模型；不会自动借用自定义空间文案接口。",
+        "toolbox_model_kind": "text",
+        "items": {
+          "source": {
+            "type": "string",
+            "description": "模型来源",
+            "options": [
+              "后台模型",
+              "自定义接口"
+            ],
+            "default": "后台模型"
+          },
+          "provider_id": {
+            "type": "string",
+            "description": "后台模型",
+            "default": "",
+            "_special": "select_provider",
+            "hint": "仅在选择后台模型时使用。文字模型留空跟随当前会话/默认模型。生图和检索请选择支持相应能力的 OpenAI 兼容提供商。"
+          },
+          "base_url": {
+            "type": "string",
+            "description": "OpenAI 兼容接口 URL",
+            "default": "",
+            "hint": "填写该功能独立使用的根地址，例如 https://example.com/v1。"
+          },
+          "api_key": {
+            "type": "string",
+            "description": "接口 Key",
+            "default": "",
+            "secret": true,
+            "hint": "此功能单独使用，不会自动借用其他功能的 Key。无鉴权的本地服务可留空。"
+          },
+          "model": {
+            "type": "string",
+            "description": "模型名称",
+            "default": "",
+            "hint": "填写这个接口实际支持的模型名称。"
+          },
+          "timeout_seconds": {
+            "type": "int",
+            "description": "请求超时（秒）",
+            "default": 60,
+            "slider": {
+              "min": 1,
+              "max": 600,
+              "step": 1
+            }
+          }
+        }
+      }
+    }
   }
 }

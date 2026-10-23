@@ -22,6 +22,8 @@ const HELP = {
   life: "按给定课表与作息提供生活背景，允许补充连贯的日常经历；已有设定和经历优先。",
 };
 const FIELD_HELP = {
+  "space.publication_memory_enabled": "让授权私聊知道自己已发布的内容，不依赖向量模型；增加少量输入 token。",
+  "space.comment_reply.enabled": "真实回复自己空间下的新评论，有新评论时才调用模型；首次不补回旧评论。",
   "reply.group_memory.enabled": "仅向指定私聊提供指定群的同人格记忆；需 LivingMemory，会增加检索耗时与输入 token。",
   "reply.follow_up.enabled": "只回顾刚回复的人的新消息；没有新消息就不调用判断模型。",
   "reply.persona_guard.enabled": "会关闭群聊流式与思考展示，实际出现泄漏时再按需开启。",
@@ -299,6 +301,8 @@ export function createToolboxUI({ api, toast, navigate }) {
         "默认等待 10 秒，将原始艾特及同一用户在窗口内的消息一起判断；群聊背景另限 12 条。管理员默认豁免，普通成员还受休眠、冷却和唤醒设置影响。"],
       ["空间发布与配图分开开启",
         "随机发布每轮从设定的 1～144 小时间隔内抽取，定点任务按北京时间执行。先检查登录账号及发文权限；文案、配图和检索可能分别计费。"],
+      ["空间互动需单独开启",
+        "可让授权私聊知晓已发布的说说和日记，并自动判断是否回复自己空间下的新评论。首次看到旧说说不补回旧评论；回复会真实发到空间，并产生模型用量。"],
       ["日记写完会直接发到空间",
         "到点参考当天参与并回复过的私聊和自己的生活写作，不读取群聊；素材从启用后积累，本机保留近 7 天。可先看草稿，注意他人隐私；离线错过不补发，同一天不重复发布。"],
       ["等图看进度，补发用原图",
@@ -378,7 +382,7 @@ export function createToolboxUI({ api, toast, navigate }) {
       statCard({ label: "最近发布", value: LABELS[schedule.last_status] || "暂无记录", sub: schedule.last_result || "随机与定点分别安排" })));
     root.append(h("div", { class: "tb-view-tools" },
       h("nav", { class: "tb-section-nav", "aria-label": "空间功能" },
-        [["publish", "发布权限"], ["models", "模型"], ["random", "随机发布"], ["fixed", "定点任务"], ["diary", "每日日记"], ["feed", "动态与留言"]].map(([id, label]) =>
+        [["publish", "发布权限"], ["models", "模型"], ["random", "随机发布"], ["fixed", "定点任务"], ["diary", "每日日记"], ["interaction", "空间互动"], ["feed", "动态与留言"]].map(([id, label]) =>
           h("a", { href: `#tb-space-${id}`, text: label }))), hintsToggle()));
     const addPanel = (id, title, detail, ...children) => {
       const node = panel(title, detail, ...children);
@@ -392,6 +396,11 @@ export function createToolboxUI({ api, toast, navigate }) {
     addPanel("diary", "每日日记", "到点回顾当天参与的私聊与自己的生活，再写日记发到空间。草稿可提前预览，配图可选。",
       fields({ diary: spec.diary }, ["space"], draft.space),
       h("div", { id: "tb-diary-feed", class: "tb-space-feed" }));
+    const comments = info.comment_reply || {}, counts = comments.counts || {};
+    addPanel("interaction", "空间互动", "已发布内容可带入授权私聊；新评论先由模型判断，再回复到自己空间。没有新评论不调用模型。",
+      subset(["publication_memory_enabled", "comment_reply"]),
+      h("p", { class: "muted", text: `自动回评：${comments.enabled ? "已开启" : "已关闭"} · 上次检查：${comments.last_scan ? textTime(Math.floor(comments.last_scan)) : "尚未检查"} · 已接受提交：${counts.sent || 0} 条 · 结果未知：${counts.unknown || 0} 条` }),
+      comments.last_error ? h("p", { class: "tb-error", text: `最近检查或处理异常：${comments.last_error}` }) : null);
     addPanel("feed", "动态与留言", "读取当前账号的空间动态、评论和留言板。", h("div", { class: "tb-actions" },
       button("空间动态", () => readSpace("posts", 0)), button("留言板", () => readSpace("guestbook", 0))),
       h("div", { id: "tb-space-feed", class: "tb-space-feed" }));

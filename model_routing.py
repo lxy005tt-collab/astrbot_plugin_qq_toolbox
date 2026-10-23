@@ -18,6 +18,7 @@ ROLES = {
     "voice_polish": ("语音表达优化", ("voice", "speech_optimization", "model_connection"), ("voice", "speech_optimization", "provider_id"), "text"),
     "space_writing": ("空间文案", ("space", "writing_model"), ("space", "schedule_provider_id"), "text"),
     "space_diary": ("空间日记写作", ("space", "diary", "model_connection"), (), "text"),
+    "space_comment": ("空间新评论回复", ("space", "comment_reply", "model_connection"), (), "text"),
     "image_polish": ("绘图提示词润色", ("image", "polish_model"), (), "text"),
     "image_order": ("改图顺序判断", ("image", "order_model"), (), "text"),
     "image_research": ("绘图资料检索", ("image", "research_model"), (), "research"),
