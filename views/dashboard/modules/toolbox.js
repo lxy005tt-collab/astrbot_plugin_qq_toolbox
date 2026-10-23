@@ -223,7 +223,7 @@ export function createToolboxUI({ api, toast, navigate }) {
       } else if (source.value === "后台模型") {
         body.append(providerField(spec.items.provider_id, [...path, "provider_id"], current.provider_id,
           value => change([...path, "provider_id"], value), "chat", ["image", "space_image", "research"].includes(spec.toolbox_model_kind)));
-      } else body.append(h("p", { class: "tb-essential tb-wide", text: "使用「OpenAI 画图」里配置的生图与改图模型。" }));
+      } else body.append(h("p", { class: "tb-essential tb-wide", text: "使用「画图」里配置的生图与改图模型。" }));
       if (spec.items.timeout_seconds && source.value === "自定义接口") body.append(field(spec.items.timeout_seconds, [...path, "timeout_seconds"], current.timeout_seconds ?? 60));
     }
     source.addEventListener("change", () => { change([...path, "source"], source.value); draw(); });

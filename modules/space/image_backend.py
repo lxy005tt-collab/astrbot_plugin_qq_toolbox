@@ -12,7 +12,7 @@ from .qzone_client import QzoneError, load_image
 def get_image_backend(context):
     metadata = context.get_registered_star("astrbot_plugin_openai_image")
     if metadata is None or not metadata.activated or metadata.star_cls is None:
-        raise QzoneError("请先启用已配置好接口的「OpenAI 画图」插件，未发布说说。")
+        raise QzoneError("请先启用已配置好接口的「画图」插件，未发布说说。")
     backend = metadata.star_cls
     required = ("_request_image_generation", "_collect_image_files", "_compose_prompt", "_get_platform_context", "_reserve_group_quota")
     if any(not callable(getattr(backend, name, None)) for name in required):

@@ -57,7 +57,7 @@ QQ 必须已经开通空间；登录过期、风控或验证需要在 QQ 中处�
 
 ## 配图与结果
 
-默认复用已安装的 OpenAI 画图插件（astrbot_plugin_openai_image）的接口、模型、格式和并发设置，
+默认复用已安装的 画图插件（astrbot_plugin_openai_image）的接口、模型、格式和并发设置，
 需要配图时按说说正文生成图片，也可由模型通过 image_prompt 指定画面。不会额外要求一套 API Key。
 配图可选，模型根据要求和文案决定，generate_image 默认 false，不会强制每条配图。
 生图使用原接口并产生相应费用；群聊生图仍计入原插件额度。

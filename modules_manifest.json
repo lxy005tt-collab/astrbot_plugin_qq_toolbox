@@ -30,7 +30,7 @@
     "key": "image",
     "legacy": "astrbot_plugin_openai_image",
     "class_name": "OpenAIImagePlugin",
-    "display_name": "OpenAI 画图",
+    "display_name": "画图",
     "author": "SanHans",
     "version": "v1.4.5",
     "repo": "https://github.com/SanHans/astrbot_plugin_openai_image"

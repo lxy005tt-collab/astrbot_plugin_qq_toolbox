@@ -1,6 +1,6 @@
 name: astrbot_plugin_qq_toolbox
 display_name: QQ Bot 工具箱
-desc: 整合 OpenAI 画图、复读与主动回复、模型输入屏蔽、Bot 观察台、真实生活、QQ 随机语音、QQ 空间和输出禁词替换，统一配置与启停。
+desc: 整合 画图、复读与主动回复、模型输入屏蔽、Bot 观察台、真实生活、QQ 随机语音、QQ 空间和输出禁词替换，统一配置与启停。
 version: "1.0"
 author: vivi
 repo: https://github.com/lxy005tt-collab/astrbot_plugin_qq_toolbox

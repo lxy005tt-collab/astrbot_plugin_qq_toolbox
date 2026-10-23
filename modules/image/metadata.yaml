@@ -1,5 +1,5 @@
 name: astrbot_plugin_openai_image
-display_name: OpenAI 画图
+display_name: 画图
 desc: 使用 OpenAI 兼容图像接口生成、改图和修图；私聊与群聊自主生图均可单独开关。
 help: /画图、/图生图、/修图；/奶蛙、/大肥鱼 附图替换主角，无图按提示词生成；/绘图额度 查询剩余次数。
 version: v1.4.5

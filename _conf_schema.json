@@ -716,7 +716,7 @@
   },
   "image": {
     "type": "object",
-    "description": "OpenAI 画图",
+    "description": "画图",
     "items": {
       "_module_enabled": {
         "type": "bool",
@@ -1446,7 +1446,7 @@
         "type": "bool",
         "description": "允许用模型生成空间配图",
         "default": true,
-        "hint": "配图可选，不会强制每条生图。复用 OpenAI 画图插件和现有接口、模型，产生原接口费用。需要生图时失败则不发布。"
+        "hint": "配图可选，不会强制每条生图。复用 画图插件和现有接口、模型，产生原接口费用。需要生图时失败则不发布。"
       },
       "schedule_enabled": {
         "type": "bool",
