@@ -592,6 +592,41 @@
             }
           }
         }
+      },
+      "group_memory": {
+        "description": "群记忆带入私聊",
+        "type": "object",
+        "hint": "需安装并启用 LivingMemory。只让指定私聊召回同一人格、指定群的已保存记忆，群聊不读取私聊；增加检索耗时和输入 token。",
+        "items": {
+          "enabled": {
+            "description": "启用群记忆带入私聊",
+            "type": "bool",
+            "default": false
+          },
+          "target_private_sessions": {
+            "description": "允许接收群记忆的私聊会话",
+            "type": "list",
+            "default": [],
+            "hint": "填写完整会话 ID：平台ID:FriendMessage:QQ号，每项一个。仅这些私聊可读取下方群记忆。"
+          },
+          "source_group_sessions": {
+            "description": "允许读取的群聊会话",
+            "type": "list",
+            "default": [],
+            "hint": "填写完整会话 ID：平台ID:GroupMessage:群号，每项一个；仅读取与目标私聊相同平台连接的群。来源群应已允许机器人参与并保存记忆。"
+          },
+          "max_memories": {
+            "description": "每轮最多带入的群记忆条数",
+            "type": "int",
+            "default": 3,
+            "slider": {
+              "min": 1,
+              "max": 8,
+              "step": 1
+            },
+            "hint": "按当前私聊文字检索，总摘要最多 1800 字。不会直接搬运整段群聊；无匹配、检索超时或依赖未就绪时继续原有回复。"
+          }
+        }
       }
     }
   },

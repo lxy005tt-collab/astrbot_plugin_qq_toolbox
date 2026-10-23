@@ -17,3 +17,5 @@
 实现位置：`modules/observatory/compat.py`。包含接口存在性检查、异常透传与采集异常隔离；框架变更后仍需重新验证兼容性。其他模块的既有兼容桥接不因本轮整改而被声明为官方接口。
 
 官方接口依据：[消息事件与临时上下文](https://docs.astrbot.app/dev/star/guides/listen-message-event.html)。
+
+可选群记忆共享通过官方 `on_llm_request` 注入临时块，读取已启用 LivingMemory 的运行实例，复用其 `initializer.memory_engine.search_memories`、人格解析与访问控制；当前核对版本为 `2.7.0-beta.2`。这些跨插件接口并非 AstrBot 官方稳定协议，未安装、未就绪或接口变化时跳过，不修改 LivingMemory 的全局记忆范围或代码。检索保留其正常缓存与访问时间更新行为，并再次核对返回记忆的会话及人格。

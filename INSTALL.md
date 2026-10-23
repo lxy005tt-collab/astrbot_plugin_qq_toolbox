@@ -8,8 +8,8 @@
 
 ## 安装
 
-1. 在 AstrBot 插件管理中选择「从链接安装」，填入 `https://github.com/lxy005tt-collab/astrbot_plugin_qq_toolbox`；也可上传 `astrbot_plugin_qq_toolbox-v1.0.zip`。若使用手动安装，把 ZIP 内的 `astrbot_plugin_qq_toolbox` 目录放到 `AstrBot/data/plugins/`。
-2. 等待 `requirements.txt` 依赖安装完成，启用「QQ Bot 工具箱」，确认显示版本 1.0。
+1. 在 AstrBot 插件管理中选择「从链接安装」，填入 `https://github.com/lxy005tt-collab/astrbot_plugin_qq_toolbox`；也可上传 `astrbot_plugin_qq_toolbox-v1.0.0.zip`。若使用手动安装，把 ZIP 内的 `astrbot_plugin_qq_toolbox` 目录放到 `AstrBot/data/plugins/`。
+2. 等待 `requirements.txt` 依赖安装完成，启用「QQ Bot 工具箱」，确认显示版本 1.0.0。
 3. 从插件详情打开同名 WebUI，先读首页「新用户必读」，再点「功能设置」。
 4. 按需要启用模块。每个模型功能可选择后台模型，或分别填 URL、Key、模型名。
 5. 点击「保存并应用」。使用空间功能时，先在「空间与日记」核对账号、连接与发文权限，再启用发布计划。

@@ -48,6 +48,7 @@ from .private_reply_watchdog import PrivateReplyWatchdog
 from .private_message_wait import PrivateMessageWait
 from .message_recall_command import recall_quoted_message
 from .command_help import send_command_help
+from .group_memory import GroupMemoryBridge
 
 BEIJING_TIME = timezone(timedelta(hours=8))
 
@@ -88,6 +89,7 @@ class MediaReplyFilter(Star):
             self._recall,
         )
         self._follow_up = ReplyFollowUp(context, config.get("follow_up", {}), self.logger, self._recall)
+        self._group_memory = GroupMemoryBridge(context, config.get("group_memory", {}), self.logger)
 
     async def initialize(self):
         self._sleep_start = self._parse_clock(self.config["sleep_start"])
@@ -290,6 +292,7 @@ class MediaReplyFilter(Star):
         if self._recall.block(event):
             return
         self._follow_up.watch_request(event, request)
+        await self._group_memory.inject(event, request)
         prepare_topic_request(event, request, self._active_judge.settings.get("topic_reply_prompt", DEFAULT_TOPIC_STYLE))
         images = event.get_extra(IMAGE_CONTEXT_EXTRA, [])
         if images:
