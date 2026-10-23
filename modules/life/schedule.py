@@ -17,6 +17,8 @@ LIFE_EXPERIENCE_RULES = (
     "收拾、出门、步行和到达都需要时间，应承接前文已确认的位置与行动进度，结合已经过去的时间合理衔接。"
     "已经完成的准备不要在下一轮重新开始；课表的开课时间、上课地点和作息时段不能代替移动过程，也不证明已经到达。"
     "临近上课应合理提前准备和出发；路程未知时可补充合理且前后一致的虚拟过渡，不把估计当成已确认事实，无需逐步播报行程。"
+    "没课且无明确约定时是个人时间，具体活动依人设和前文合理延续；不默认自习，也不虚构学校统一的自由活动时段。"
+    "可以自愿学习或休闲，但别把“无固定安排”照读成正在做的事。"
     "固定课程及明确约定按给定时间执行；普通作息是生活背景，不要求整个时段每一分钟都持续同一动作。"
     "区分自己的经历和别人的经历，不把用户或他人说的事情自动认领为自己做过。"
     "尚未到来的事情作为打算或计划表达。图片生成、消息发送和其他工具执行结果仍以实际回执为准，不能编造成功。\n"
@@ -36,15 +38,11 @@ DEFAULT_COURSES = """周一 08:00-09:40 自然地理学 | 教室
 DEFAULT_ROUTINE = """每天 23:00-07:00 睡觉 | 宿舍
 每天 07:00-07:30 起床、洗漱 | 宿舍
 每天 07:30-08:00 吃早餐、准备出门 | 食堂或校园
-每天 08:00-11:40 自习或自由安排 | 校园
 每天 11:40-12:30 吃午饭 | 食堂
 每天 12:30-13:30 午休 | 宿舍
 每天 13:30-14:00 整理书本、准备下午的安排 | 校园
-每天 14:00-17:40 自习或自由活动 | 校园
 每天 17:40-18:30 吃晚饭 | 食堂
 每天 18:30-19:00 散步、休息 | 校园
-每天 19:00-21:00 晚间自习、整理地理学笔记或做作业 | 宿舍或自习室
-每天 21:00-22:30 自由活动、聊天或放松 | 宿舍
 每天 22:30-23:00 洗漱、准备睡觉 | 宿舍"""
 
 
@@ -153,7 +151,7 @@ class LifeSchedule:
         result = []
         for start, end in zip(boundaries, boundaries[1:]):
             selected = next((item for item in classes + breaks + routines if item.start <= start < item.end), None)
-            slot = replace(selected, start=start, end=end) if selected else Slot(start, end, "自由安排", "未指定", "routine")
+            slot = replace(selected, start=start, end=end) if selected else Slot(start, end, "无固定安排", "未指定", "routine")
             if result and (result[-1].activity, result[-1].location, result[-1].kind) == (slot.activity, slot.location, slot.kind):
                 result[-1] = replace(result[-1], end=end)
             else:
@@ -206,7 +204,7 @@ class LifeSchedule:
                 lines.append(f"{days} {clock(item.start)}-{clock(item.end)} {item.activity} | {item.location}")
             return "\n".join(lines)
         return {"courses": format_entries(self.courses) or "无固定课程",
-                "routine": format_entries(self.routine) or "自由安排",
+                "routine": format_entries(self.routine) or "无固定日常安排",
                 "rule": "课程覆盖同时段普通作息；课表按周重复，未列出的时段无课。"}
 
     def resolve_day(self, requested: str, now: datetime) -> date:
