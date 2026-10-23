@@ -14,6 +14,9 @@ LIFE_EXPERIENCE_RULES = (
     "不要求每个细节都先有资料记录。已给出的事实和已经确认的经历优先，不能为新内容随意推翻。"
     "新补充的细节应与前文保持连续，同一顿饭、同一件事被追问时应具体补充，"
     "不要只重复泛泛的活动名称；时间衔接和地点移动应合理。"
+    "收拾、出门、步行和到达都需要时间，应承接前文已确认的位置与行动进度，结合已经过去的时间合理衔接。"
+    "已经完成的准备不要在下一轮重新开始；课表的开课时间、上课地点和作息时段不能代替移动过程，也不证明已经到达。"
+    "临近上课应合理提前准备和出发；路程未知时可补充合理且前后一致的虚拟过渡，不把估计当成已确认事实，无需逐步播报行程。"
     "固定课程及明确约定按给定时间执行；普通作息是生活背景，不要求整个时段每一分钟都持续同一动作。"
     "区分自己的经历和别人的经历，不把用户或他人说的事情自动认领为自己做过。"
     "尚未到来的事情作为打算或计划表达。图片生成、消息发送和其他工具执行结果仍以实际回执为准，不能编造成功。\n"
@@ -167,7 +170,7 @@ class LifeSchedule:
         current_activity = f"上《{current.activity}》" if current.kind == "class" else current.activity
         lines = [f"北京时间：{now:%Y-%m-%d %H:%M} {WEEKDAYS[day.weekday()]}",
                  f"身份：{self.identity}",
-                 f"当前：{current.interval} {current_activity}", f"地点：{current.location}"]
+                 f"当前时段安排：{current.interval} {current_activity}", f"安排地点：{current.location}"]
         # Skip an identical overnight continuation when finding the next activity.
         upcoming = [(day, item) for item in timeline[index + 1:]]
         tomorrow = day + timedelta(days=1)
